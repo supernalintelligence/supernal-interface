@@ -5,16 +5,15 @@ epic: Supernal Interface Demo System
 category: ui
 hierarchyLevel: url-chat
 priority: High
-status: In Progress
+status: Draft
 dependencies: []
 assignee: ""
 version: 1.0.0
 tags: [core, mvp, ui]
 created: 2025-01-25
-updated: 2025-10-25
+updated: 2025-01-25
 reviewedBy: ""
 approvedBy: ""
-branch: feature/req-001-interactive-ui-widgets-with-tool-decorators
 ---
 
 # Requirement: Interactive UI Widgets with Tool Decorators
