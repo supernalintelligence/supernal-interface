@@ -13,9 +13,9 @@ let demoState = {
   chatPanelOpen: true, // Always open now
   codeExampleVisible: false,
   testRunning: false,
-  notificationsEnabled: false,
-  theme: 'light' as 'light' | 'dark' | 'auto',
-  language: 'en',
+  featureEnabled: false,
+  priority: 'medium' as 'high' | 'medium' | 'low',
+  status: 'inactive',
   messages: [] as Array<{id: string, text: string, type: 'user' | 'ai' | 'system', timestamp: string}>
 };
 
@@ -177,49 +177,51 @@ export class UIControls {
   }
 
   @Tool({
-    testId: 'toggle-notifications',
-    description: 'Toggle notification settings',
+    testId: 'toggle-feature',
+    description: 'Toggle a feature on or off',
     aiEnabled: true,
     dangerLevel: 'safe',
-    examples: ['toggle notifications', 'enable notifications', 'disable notifications']
+    examples: ['toggle feature', 'enable feature', 'disable feature']
   })
-  async toggleNotifications(enabled?: boolean): Promise<{ success: boolean; message: string }> {
-    // For demo purposes, just return success with the state
-    const newState = enabled !== undefined ? enabled : !getDemoState().notificationsEnabled;
-    return { success: true, message: `Notifications ${newState ? 'enabled' : 'disabled'}` };
+  async toggleFeature(enabled?: boolean): Promise<{ success: boolean; message: string }> {
+    const newState = enabled !== undefined ? enabled : !demoState.featureEnabled;
+    updateState({ featureEnabled: newState });
+    return { success: true, message: `Feature ${newState ? 'enabled' : 'disabled'}` };
   }
 
   @Tool({
-    testId: 'set-theme',
-    description: 'Change the application theme',
+    testId: 'set-priority',
+    description: 'Set priority level',
     aiEnabled: true,
     dangerLevel: 'safe',
-    examples: ['set theme dark', 'change to light theme', 'use auto theme']
+    examples: ['set priority high', 'change priority to medium', 'low priority']
   })
-  async setTheme(theme: 'light' | 'dark' | 'auto'): Promise<{ success: boolean; message: string }> {
-    // Apply theme to document for immediate visual feedback
-    if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('data-theme', theme);
-    }
-    return { success: true, message: `Theme changed to ${theme}` };
+  async setPriority(priority: 'high' | 'medium' | 'low'): Promise<{ success: boolean; message: string }> {
+    updateState({ priority });
+    return { success: true, message: `Priority set to ${priority}` };
   }
 
   @Tool({
-    testId: 'set-language',
-    description: 'Change the application language',
+    testId: 'set-status',
+    description: 'Change status setting',
     aiEnabled: true,
     dangerLevel: 'safe',
-    examples: ['set language spanish', 'change to english', 'use french language']
+    examples: ['set status active', 'change to inactive', 'status pending']
   })
-  async setLanguage(language: string): Promise<{ success: boolean; message: string }> {
-    const languageNames: Record<string, string> = {
-      'en': 'English',
-      'es': 'Spanish', 
-      'fr': 'French',
-      'de': 'German'
-    };
-    const displayName = languageNames[language] || language;
-    return { success: true, message: `Language changed to ${displayName}` };
+  async setStatus(status: string): Promise<{ success: boolean; message: string }> {
+    updateState({ status });
+    return { success: true, message: `Status changed to ${status}` };
+  }
+
+  @Tool({
+    testId: 'submit-form',
+    description: 'Submit form with data',
+    aiEnabled: true,
+    dangerLevel: 'safe',
+    examples: ['submit form', 'send form data', 'submit with name']
+  })
+  async submitForm(name: string): Promise<{ success: boolean; message: string }> {
+    return { success: true, message: `Form submitted with name: ${name}` };
   }
 }
 
