@@ -19,7 +19,7 @@ approvedBy: ""
 # Requirement: Interactive UI Widgets with Tool Decorators
 
 ## Description
-Create a section of standard UI elements (buttons, forms, inputs, radio buttons, checkboxes, etc.) that are directly wrapped with @Tool decorators. These widgets must interact directly with the underlying @Tool methods when clicked or interacted with, providing immediate visual feedback and state changes.
+Create a clean component zoo section showing standard UI widget examples (buttons, forms, inputs, radio buttons, checkboxes, etc.) that are directly wrapped with @Tool decorators. This should be a small sliver above the main interface - like a standard website component showcase. Each widget demonstrates direct @Tool method execution with immediate feedback.
 
 ## User Story
 As a developer testing the @supernal-interface system, I want to interact with standard UI widgets that are directly connected to @Tool decorated methods, so that I can see immediate results of tool execution and understand how the decorator system works in practice.
@@ -37,40 +37,40 @@ Feature: Interactive UI Widgets with Tool Decorators
     And the UI widgets section is visible
     And all @Tool decorated methods are registered
 
-  Scenario: Click a standard button widget
-    Given I see a button labeled "Open Menu"
+  Scenario: Click a simple button widget
+    Given I see a button labeled "Open Menu" in the widget zoo
     When I click the button
     Then the @Tool method "openMainMenu()" executes immediately
-    And I see visual feedback that the menu opened
-    And the button state reflects the current menu state
-
-  Scenario: Interact with form input widget
-    Given I see a text input field with label "Send Message"
-    When I type "Hello World" and press Enter
-    Then the @Tool method "sendChatMessage('Hello World')" executes
-    And I see the message appear in the chat interface
-    And the input field clears automatically
+    And I see visual feedback that the action completed
+    And the button shows its current state
 
   Scenario: Toggle checkbox widget
-    Given I see a checkbox labeled "Enable Notifications"
+    Given I see a checkbox labeled "Enable Feature" in the widget zoo
     When I click the checkbox
-    Then the @Tool method "toggleNotifications()" executes
-    And the checkbox state changes to reflect the new setting
-    And other UI elements update based on the notification state
+    Then the @Tool method "toggleFeature()" executes
+    And the checkbox state changes immediately
+    And I see feedback that the feature was toggled
 
   Scenario: Select radio button widget
-    Given I see radio buttons for "Theme: Light, Dark, Auto"
-    When I select "Dark"
-    Then the @Tool method "setTheme('dark')" executes
-    And the UI theme changes immediately to dark mode
-    And the radio button selection is updated
+    Given I see radio buttons for "Priority: High, Medium, Low" in the widget zoo
+    When I select "High"
+    Then the @Tool method "setPriority('high')" executes
+    And the radio button selection updates immediately
+    And I see feedback confirming the priority change
 
   Scenario: Use dropdown/select widget
-    Given I see a dropdown labeled "Language"
-    When I select "Spanish" from the dropdown
-    Then the @Tool method "setLanguage('es')" executes
-    And UI text changes to Spanish where applicable
-    And the dropdown shows "Spanish" as selected
+    Given I see a dropdown labeled "Status" in the widget zoo
+    When I select "Active" from the dropdown
+    Then the @Tool method "setStatus('active')" executes
+    And the dropdown shows "Active" as selected
+    And I see feedback confirming the status change
+
+  Scenario: Submit form widget
+    Given I see a simple form with name input and submit button
+    When I enter "Test User" and click submit
+    Then the @Tool method "submitForm('Test User')" executes
+    And I see feedback that the form was submitted
+    And the form clears after successful submission
 ```
 
 ## Technical Context
