@@ -12,6 +12,35 @@ export * from './ToolResult';
 export * from './ClassifiedTool';
 export * from './DiscoverableToolProvider';
 
+// Additional types for testing integration
+export interface ComponentInfo {
+  constantName: string;
+  testId: string;
+  elementType: ElementType;
+  actionType: ActionType;
+  methodName: string;
+  confidence: number;
+  source: string;
+}
+
+export enum ElementType {
+  BUTTON = 'button',
+  INPUT = 'input',
+  SELECT = 'select',
+  TEXTAREA = 'textarea',
+  LINK = 'link',
+  DIV = 'div'
+}
+
+export enum ActionType {
+  CLICK = 'click',
+  TYPE = 'type',
+  SELECT = 'select',
+  NAVIGATE = 'navigate',
+  HOVER = 'hover',
+  SCROLL = 'scroll'
+}
+
 /**
  * Tools Types
  * 

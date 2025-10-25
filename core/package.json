@@ -4,13 +4,35 @@
   "description": "Universal AI Interface - Make any application AI-controllable and auto-testable",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./browser": {
+      "import": "./dist/browser.js",
+      "require": "./dist/browser.js",
+      "types": "./dist/browser.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
     "test": "jest",
     "test:watch": "jest --watch",
+    "demo": "cd demo && npm run dev",
+    "demo:build": "cd demo && npm run build",
+    "demo:start": "cd demo && npm run start",
+    "test:coverage": "jest --coverage",
+    "test:self": "jest tests/core.test.ts",
     "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix"
+    "lint:fix": "eslint src --ext .ts --fix",
+    "generate-tests": "ts-node src/cli/generate-tests.ts",
+    "init-project": "ts-node src/cli/init.ts"
+  },
+  "bin": {
+    "supernal-interface": "dist/cli/generate.js"
   },
   "keywords": [
     "ai",
@@ -24,7 +46,8 @@
   "author": "Supernal AI",
   "license": "MIT",
   "dependencies": {
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.40.0",
+    "commander": "^11.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

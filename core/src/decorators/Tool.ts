@@ -43,6 +43,12 @@ export interface ToolConfig {
   aiEnabled?: boolean;                // Default: false (test-only)
   requiresApproval?: boolean;         // Requires human approval before AI execution
   dangerLevel?: 'safe' | 'moderate' | 'dangerous' | 'destructive';
+  
+  // NEW: Testing integration (from testing-tools)
+  generateSimulation?: boolean;       // Auto-generate simulation methods
+  generateStories?: boolean;          // Auto-generate test stories
+  elementType?: 'button' | 'input' | 'select' | 'textarea' | 'link' | 'div';
+  actionType?: 'click' | 'type' | 'select' | 'navigate' | 'hover' | 'scroll';
 }
 
 export interface ToolMetadata {
@@ -75,6 +81,15 @@ export interface ToolMetadata {
   aiEnabled: boolean;
   requiresApproval: boolean;
   dangerLevel: 'safe' | 'moderate' | 'dangerous' | 'destructive';
+  
+  // NEW: Testing integration
+  generateSimulation: boolean;
+  generateStories: boolean;
+  elementType?: 'button' | 'input' | 'select' | 'textarea' | 'link' | 'div';
+  actionType?: 'click' | 'type' | 'select' | 'navigate' | 'hover' | 'scroll';
+  
+  // Provider information
+  providerClass: string;
 }
 
 /**
@@ -85,8 +100,8 @@ export interface ToolMetadata {
  * 
  * @param config Optional configuration to override defaults
  */
-export function Tool(config: ToolConfig = {}) {
-  return function(target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
+export function Tool(config: ToolConfig = {}): MethodDecorator {
+  return function(target: any, propertyKey: string | symbol, descriptor?: PropertyDescriptor) {
     // Ensure propertyKey is a string for processing
     const methodName = typeof propertyKey === 'string' ? propertyKey : String(propertyKey);
     
@@ -120,14 +135,31 @@ export function Tool(config: ToolConfig = {}) {
       toolType: config.toolType || inferToolType(methodName),
       aiEnabled: config.aiEnabled || false,  // Default: test-only
       dangerLevel: config.dangerLevel || inferDangerLevel(methodName),
-      requiresApproval: config.requiresApproval || shouldRequireApproval(methodName, config.dangerLevel)
+      requiresApproval: config.requiresApproval || shouldRequireApproval(methodName, config.dangerLevel),
+      
+      // NEW: Testing integration - DEFAULTS
+      generateSimulation: config.generateSimulation ?? true,
+      generateStories: config.generateStories ?? true,
+      elementType: config.elementType || inferElementType(methodName),
+      actionType: config.actionType || inferActionType(methodName),
+      
+      // Provider information
+      providerClass: target.constructor.name
     };
     
-    // Register tool metadata on the class prototype
+    // Register tool metadata on the class prototype (for supernal-command compatibility)
     if (!target.constructor.prototype.__tools__) {
       target.constructor.prototype.__tools__ = [];
     }
     target.constructor.prototype.__tools__.push(toolMetadata);
+    
+    // Register with ToolRegistry (simplified - no execution bundling)
+    try {
+      const { ToolRegistry } = require('../registry/ToolRegistry');
+      ToolRegistry.registerTool(target.constructor.name, methodName, toolMetadata);
+    } catch (error) {
+      console.error('Failed to register tool:', error);
+    }
     
     DEBUG && console.log(`[Tool] Registered tool: ${toolMetadata.name} (${toolMetadata.category})`);
   };
@@ -418,4 +450,79 @@ function shouldRequireApproval(methodName: string, dangerLevel?: 'safe' | 'moder
   }
   
   return false;
+}
+
+/**
+ * Infer element type from method name (for testing integration)
+ */
+function inferElementType(methodName: string): 'button' | 'input' | 'select' | 'textarea' | 'link' | 'div' | undefined {
+  const lowerName = methodName.toLowerCase();
+  
+  // Button patterns
+  if (lowerName.includes('click') || lowerName.includes('button') || lowerName.includes('submit')) {
+    return 'button';
+  }
+  
+  // Input patterns
+  if (lowerName.includes('type') || lowerName.includes('input') || lowerName.includes('enter')) {
+    return 'input';
+  }
+  
+  // Select patterns
+  if (lowerName.includes('select') || lowerName.includes('choose') || lowerName.includes('dropdown')) {
+    return 'select';
+  }
+  
+  // Textarea patterns
+  if (lowerName.includes('textarea') || lowerName.includes('message') || lowerName.includes('comment')) {
+    return 'textarea';
+  }
+  
+  // Link patterns
+  if (lowerName.includes('navigate') || lowerName.includes('link') || lowerName.includes('goto')) {
+    return 'link';
+  }
+  
+  // Default to div for generic interactions
+  return 'div';
+}
+
+/**
+ * Infer action type from method name (for testing integration)
+ */
+function inferActionType(methodName: string): 'click' | 'type' | 'select' | 'navigate' | 'hover' | 'scroll' | undefined {
+  const lowerName = methodName.toLowerCase();
+  
+  // Click actions
+  if (lowerName.includes('click') || lowerName.includes('press') || lowerName.includes('tap')) {
+    return 'click';
+  }
+  
+  // Type actions
+  if (lowerName.includes('type') || lowerName.includes('enter') || lowerName.includes('input')) {
+    return 'type';
+  }
+  
+  // Select actions
+  if (lowerName.includes('select') || lowerName.includes('choose') || lowerName.includes('pick')) {
+    return 'select';
+  }
+  
+  // Navigate actions
+  if (lowerName.includes('navigate') || lowerName.includes('goto') || lowerName.includes('open')) {
+    return 'navigate';
+  }
+  
+  // Hover actions
+  if (lowerName.includes('hover') || lowerName.includes('mouseover')) {
+    return 'hover';
+  }
+  
+  // Scroll actions
+  if (lowerName.includes('scroll') || lowerName.includes('swipe')) {
+    return 'scroll';
+  }
+  
+  // Default to click for most interactions
+  return 'click';
 }
