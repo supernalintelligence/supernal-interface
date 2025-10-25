@@ -1,12 +1,12 @@
 /**
  * REQ-001: Interactive UI Widgets with Tool Decorators
  * 
- * Standard UI elements directly connected to @Tool decorated methods.
- * Each widget provides immediate visual feedback and state changes.
+ * Clean component zoo showing standard UI widgets directly connected to @Tool methods.
+ * Small sliver above main interface - like a website component showcase.
  */
 
-import React, { useState, useEffect } from 'react';
-import { getUIControls, getDemoState, setStateChangeCallback } from '../lib/UIControls';
+import React, { useState } from 'react';
+import { getUIControls } from '../lib/UIControls';
 
 interface InteractiveWidgetsProps {
   onWidgetInteraction?: (widgetType: string, action: string, result: any) => void;
@@ -15,294 +15,190 @@ interface InteractiveWidgetsProps {
 export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({ 
   onWidgetInteraction 
 }) => {
-  const [demoState, setDemoState] = useState(getDemoState());
-  const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>('light');
-  const [language, setLanguage] = useState('en');
-  const [notifications, setNotifications] = useState(false);
-  const [messageInput, setMessageInput] = useState('');
-  const [feedback, setFeedback] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [featureEnabled, setFeatureEnabled] = useState(false);
+  const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium');
+  const [status, setStatus] = useState('inactive');
+  const [formName, setFormName] = useState('');
+  const [feedback, setFeedback] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Sync with UIControls state changes
-    setStateChangeCallback((newState) => {
-      setDemoState(newState);
-    });
-  }, []);
-
-  const showFeedback = (type: 'success' | 'error', message: string) => {
-    setFeedback({ type, message });
-    setTimeout(() => setFeedback(null), 3000);
+  const showFeedback = (message: string) => {
+    setFeedback(message);
+    setTimeout(() => setFeedback(null), 2000);
   };
 
-  const handleButtonClick = async (toolMethod: string, buttonLabel: string) => {
+  const handleButtonClick = async () => {
     try {
       const uiControls = getUIControls();
-      let result;
-
-      switch (toolMethod) {
-        case 'openMainMenu':
-          result = await uiControls.openMainMenu();
-          break;
-        case 'closeMainMenu':
-          result = await uiControls.closeMainMenu();
-          break;
-        case 'generateCodeExample':
-          result = await uiControls.generateCodeExample();
-          break;
-        case 'runTestSimulation':
-          result = await uiControls.runTestSimulation();
-          break;
-        case 'resetDemoState':
-          result = await uiControls.resetDemoState();
-          break;
-        default:
-          result = { success: false, message: `Unknown tool method: ${toolMethod}` };
-      }
-
-      showFeedback(result.success ? 'success' : 'error', result.message);
-      onWidgetInteraction?.(buttonLabel, 'click', result);
+      const result = menuOpen ? await uiControls.closeMainMenu() : await uiControls.openMainMenu();
+      setMenuOpen(!menuOpen);
+      showFeedback(result.message);
+      onWidgetInteraction?.('Button', 'click', result);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      showFeedback('error', `Failed to execute ${toolMethod}: ${errorMessage}`);
-    }
-  };
-
-  const handleInputSubmit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && messageInput.trim()) {
-      try {
-        const uiControls = getUIControls();
-        const result = await uiControls.sendChatMessage(messageInput);
-        
-        showFeedback(result.success ? 'success' : 'error', result.message);
-        onWidgetInteraction?.('Send Message Input', 'submit', result);
-        
-        if (result.success) {
-          setMessageInput(''); // Clear input on success
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        showFeedback('error', `Failed to send message: ${errorMessage}`);
-      }
+      showFeedback(`Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
   const handleCheckboxChange = async (checked: boolean) => {
     try {
-      // For demo purposes, we'll simulate a toggleNotifications @Tool method
-      setNotifications(checked);
-      showFeedback('success', `Notifications ${checked ? 'enabled' : 'disabled'}`);
-      onWidgetInteraction?.('Enable Notifications', 'toggle', { success: true, enabled: checked });
+      const uiControls = getUIControls();
+      const result = await uiControls.toggleFeature(checked);
+      setFeatureEnabled(checked);
+      showFeedback(result.message);
+      onWidgetInteraction?.('Checkbox', 'toggle', result);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      showFeedback('error', `Failed to toggle notifications: ${errorMessage}`);
+      showFeedback(`Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
-  const handleThemeChange = async (newTheme: 'light' | 'dark' | 'auto') => {
+  const handlePriorityChange = async (newPriority: 'high' | 'medium' | 'low') => {
     try {
-      setTheme(newTheme);
-      // Apply theme to document for immediate visual feedback
-      document.documentElement.setAttribute('data-theme', newTheme);
-      showFeedback('success', `Theme changed to ${newTheme}`);
-      onWidgetInteraction?.('Theme Selection', 'change', { success: true, theme: newTheme });
+      const uiControls = getUIControls();
+      const result = await uiControls.setPriority(newPriority);
+      setPriority(newPriority);
+      showFeedback(result.message);
+      onWidgetInteraction?.('Radio', 'select', result);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      showFeedback('error', `Failed to change theme: ${errorMessage}`);
+      showFeedback(`Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
-  const handleLanguageChange = async (newLanguage: string) => {
+  const handleStatusChange = async (newStatus: string) => {
     try {
-      setLanguage(newLanguage);
-      showFeedback('success', `Language changed to ${newLanguage === 'es' ? 'Spanish' : 'English'}`);
-      onWidgetInteraction?.('Language Selection', 'change', { success: true, language: newLanguage });
+      const uiControls = getUIControls();
+      const result = await uiControls.setStatus(newStatus);
+      setStatus(newStatus);
+      showFeedback(result.message);
+      onWidgetInteraction?.('Select', 'change', result);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      showFeedback('error', `Failed to change language: ${errorMessage}`);
+      showFeedback(`Error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formName.trim()) return;
+    
+    try {
+      const uiControls = getUIControls();
+      const result = await uiControls.submitForm(formName);
+      setFormName('');
+      showFeedback(result.message);
+      onWidgetInteraction?.('Form', 'submit', result);
+    } catch (error) {
+      showFeedback(`Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <h2 className="text-xl font-semibold mb-4">🎮 Interactive UI Widgets</h2>
-      <p className="text-gray-600 mb-6 text-sm">
-        These widgets are directly connected to @Tool decorated methods. Each interaction executes the corresponding tool immediately.
+    <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-gray-200 rounded-lg p-4 mb-6">
+      <h3 className="text-lg font-semibold mb-3 text-gray-800">🎮 Widget Component Zoo</h3>
+      <p className="text-sm text-gray-600 mb-4">
+        Standard UI widgets with @Tool decorators - each interaction executes the corresponding method immediately.
       </p>
 
-      {/* Feedback Display */}
+      {/* Feedback */}
       {feedback && (
-        <div className={`mb-4 p-3 rounded-lg border ${
-          feedback.type === 'success' 
-            ? 'bg-green-50 border-green-200 text-green-800' 
-            : 'bg-red-50 border-red-200 text-red-800'
-        }`}>
-          {feedback.type === 'success' ? '✅' : '❌'} {feedback.message}
+        <div className="mb-3 p-2 bg-green-100 border border-green-300 rounded text-green-800 text-sm">
+          ✅ {feedback}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
         
-        {/* Button Widgets */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Button Widgets</h3>
-          
-          <div className="space-y-3">
-            <button
-              data-testid="open-menu-widget"
-              onClick={() => handleButtonClick('openMainMenu', 'Open Menu')}
-              className={`w-full px-4 py-2 rounded-lg transition-colors ${
-                demoState.menuOpen 
-                  ? 'bg-green-600 text-white' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-            >
-              {demoState.menuOpen ? '✅ Menu Open' : 'Open Menu'}
-            </button>
+        {/* Button Widget */}
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-700">Button</label>
+          <button
+            data-testid="menu-toggle-widget"
+            onClick={handleButtonClick}
+            className={`w-full px-3 py-2 text-sm rounded transition-colors ${
+              menuOpen 
+                ? 'bg-green-600 text-white' 
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
+          >
+            {menuOpen ? '✅ Menu Open' : 'Open Menu'}
+          </button>
+        </div>
 
-            <button
-              data-testid="close-menu-widget"
-              onClick={() => handleButtonClick('closeMainMenu', 'Close Menu')}
-              disabled={!demoState.menuOpen}
-              className={`w-full px-4 py-2 rounded-lg transition-colors ${
-                !demoState.menuOpen 
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                  : 'bg-red-600 text-white hover:bg-red-700'
-              }`}
-            >
-              Close Menu
-            </button>
-
-            <button
-              data-testid="generate-code-widget"
-              onClick={() => handleButtonClick('generateCodeExample', 'Show Code')}
-              className={`w-full px-4 py-2 rounded-lg transition-colors ${
-                demoState.codeExampleVisible 
-                  ? 'bg-green-600 text-white' 
-                  : 'bg-purple-600 text-white hover:bg-purple-700'
-              }`}
-            >
-              {demoState.codeExampleVisible ? '✅ Code Shown' : 'Show Code Example'}
-            </button>
-
-            <button
-              data-testid="run-test-widget"
-              onClick={() => handleButtonClick('runTestSimulation', 'Run Test')}
-              disabled={demoState.testRunning}
-              className={`w-full px-4 py-2 rounded-lg transition-colors ${
-                demoState.testRunning 
-                  ? 'bg-yellow-500 text-white cursor-not-allowed' 
-                  : 'bg-green-600 text-white hover:bg-green-700'
-              }`}
-            >
-              {demoState.testRunning ? '🔄 Test Running...' : 'Run Test Simulation'}
-            </button>
-
-            <button
-              data-testid="reset-demo-widget"
-              onClick={() => handleButtonClick('resetDemoState', 'Reset Demo')}
-              className="w-full px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
-            >
-              Reset Demo State
-            </button>
+        {/* Checkbox Widget */}
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-700">Checkbox</label>
+          <div className="flex items-center space-x-2">
+            <input
+              data-testid="feature-toggle-widget"
+              type="checkbox"
+              checked={featureEnabled}
+              onChange={(e) => handleCheckboxChange(e.target.checked)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <span className="text-sm text-gray-700">
+              Enable Feature {featureEnabled && '✅'}
+            </span>
           </div>
         </div>
 
-        {/* Form Input Widgets */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Form Input Widgets</h3>
-          
-          <div className="space-y-3">
-            {/* Text Input Widget */}
-            <div>
-              <label htmlFor="message-input" className="block text-sm font-medium text-gray-700 mb-1">
-                Send Message
-              </label>
-              <input
-                id="message-input"
-                data-testid="send-message-widget"
-                type="text"
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                onKeyPress={handleInputSubmit}
-                placeholder="Type message and press Enter..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              />
-              <p className="text-xs text-gray-500 mt-1">Press Enter to execute sendChatMessage() @Tool method</p>
-            </div>
-
-            {/* Checkbox Widget */}
-            <div className="flex items-center space-x-3">
-              <input
-                id="notifications-checkbox"
-                data-testid="enable-notifications-widget"
-                type="checkbox"
-                checked={notifications}
-                onChange={(e) => handleCheckboxChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="notifications-checkbox" className="text-sm font-medium text-gray-700">
-                Enable Notifications {notifications && '✅'}
-              </label>
-            </div>
-
-            {/* Radio Button Widget */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Theme</label>
-              <div className="space-y-2">
-                {(['light', 'dark', 'auto'] as const).map((themeOption) => (
-                  <div key={themeOption} className="flex items-center">
-                    <input
-                      id={`theme-${themeOption}`}
-                      data-testid={`theme-${themeOption}-widget`}
-                      name="theme"
-                      type="radio"
-                      value={themeOption}
-                      checked={theme === themeOption}
-                      onChange={() => handleThemeChange(themeOption)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                    />
-                    <label htmlFor={`theme-${themeOption}`} className="ml-2 text-sm text-gray-700 capitalize">
-                      {themeOption} {theme === themeOption && '✅'}
-                    </label>
-                  </div>
-                ))}
+        {/* Radio Widget */}
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-700">Radio</label>
+          <div className="space-y-1">
+            {(['high', 'medium', 'low'] as const).map((level) => (
+              <div key={level} className="flex items-center">
+                <input
+                  data-testid={`priority-${level}-widget`}
+                  name="priority"
+                  type="radio"
+                  value={level}
+                  checked={priority === level}
+                  onChange={() => handlePriorityChange(level)}
+                  className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-gray-300"
+                />
+                <label className="ml-1 text-xs text-gray-700 capitalize">
+                  {level} {priority === level && '✅'}
+                </label>
               </div>
-            </div>
-
-            {/* Dropdown/Select Widget */}
-            <div>
-              <label htmlFor="language-select" className="block text-sm font-medium text-gray-700 mb-1">
-                Language
-              </label>
-              <select
-                id="language-select"
-                data-testid="language-select-widget"
-                value={language}
-                onChange={(e) => handleLanguageChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-              </select>
-              <p className="text-xs text-gray-500 mt-1">Executes setLanguage() @Tool method</p>
-            </div>
+            ))}
           </div>
         </div>
-      </div>
 
-      {/* Widget State Display */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">Current Widget States:</h4>
-        <div className="text-xs text-gray-600 space-y-1">
-          <div>Menu Open: <span className="font-mono">{demoState.menuOpen ? 'true' : 'false'}</span></div>
-          <div>Code Example Visible: <span className="font-mono">{demoState.codeExampleVisible ? 'true' : 'false'}</span></div>
-          <div>Test Running: <span className="font-mono">{demoState.testRunning ? 'true' : 'false'}</span></div>
-          <div>Notifications: <span className="font-mono">{notifications ? 'enabled' : 'disabled'}</span></div>
-          <div>Theme: <span className="font-mono">{theme}</span></div>
-          <div>Language: <span className="font-mono">{language}</span></div>
-          <div>Messages Count: <span className="font-mono">{demoState.messages.length}</span></div>
+        {/* Select Widget */}
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-700">Select</label>
+          <select
+            data-testid="status-select-widget"
+            value={status}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="inactive">Inactive</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="disabled">Disabled</option>
+          </select>
+        </div>
+
+        {/* Form Widget */}
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-700">Form</label>
+          <form onSubmit={handleFormSubmit} className="space-y-2">
+            <input
+              data-testid="form-name-widget"
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              placeholder="Enter name..."
+              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              data-testid="form-submit-widget"
+              type="submit"
+              disabled={!formName.trim()}
+              className="w-full px-2 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            >
+              Submit
+            </button>
+          </form>
         </div>
       </div>
     </div>
