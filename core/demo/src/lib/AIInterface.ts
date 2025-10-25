@@ -5,6 +5,7 @@
  */
 
 import { ToolRegistry, ToolMetadata } from '@supernal-interface/core/browser';
+import { getUIControls } from './UIControls';
 
 export interface AICommand {
   query: string;
@@ -148,78 +149,51 @@ export class DemoAIInterface {
   }
   
   /**
-   * Execute the actual tool method
+   * Execute the actual @Tool method directly
    */
   private async executeToolMethod(tool: ToolMetadata): Promise<{ success: boolean; message: string }> {
-    // This is where we'd normally call the actual provider method
-    // For the demo, we'll simulate the execution by triggering the DOM elements
+    console.log(`🔧 AIInterface: Executing @Tool method: ${tool.methodName}()`);
     
-    switch (tool.methodName) {
-      case 'openMainMenu':
-        return this.simulateClick('open-main-menu');
-      case 'closeMainMenu':
-        return this.simulateClick('close-main-menu');
-      case 'navigateToDocs':
-        return this.simulateClick('navigate-to-docs');
-      case 'sendMessage':
-        return this.simulateSendMessage();
-      case 'clearChatHistory':
-        return this.simulateClick('clear-chat-history');
-      case 'toggleChatPanel':
-        return this.simulateClick('toggle-chat-panel');
-      case 'generateCodeExample':
-        return this.simulateClick('generate-code-example');
-      case 'runTestSimulation':
-        return this.simulateClick('run-test-simulation');
-      case 'resetDemoState':
-        return this.simulateClick('reset-demo-state');
-      case 'deleteDemoData':
-        return this.simulateClick('delete-demo-data');
-      case 'exportDemoConfig':
-        return this.simulateClick('export-demo-config');
-      default:
-        return { success: false, message: `Unknown tool method: ${tool.methodName}` };
+    try {
+      const uiControls = getUIControls();
+      
+      // Call the @Tool decorated method directly
+      switch (tool.methodName) {
+        case 'openMainMenu':
+          return await uiControls.openMainMenu();
+        case 'closeMainMenu':
+          return await uiControls.closeMainMenu();
+        case 'navigateToDocs':
+          return await uiControls.navigateToDocs();
+        case 'generateCodeExample':
+          return await uiControls.generateCodeExample();
+        case 'runTestSimulation':
+          return await uiControls.runTestSimulation();
+        case 'resetDemoState':
+          return await uiControls.resetDemoState();
+        case 'sendChatMessage':
+          return await uiControls.sendChatMessage();
+        case 'clearChatHistory':
+          return await uiControls.clearChatHistory();
+        case 'deleteDemoData':
+          return await uiControls.deleteDemoData();
+        case 'toggleNotifications':
+          return await uiControls.toggleNotifications();
+        case 'setTheme':
+          return await uiControls.setTheme('dark'); // Default to dark for demo
+        case 'setLanguage':
+          return await uiControls.setLanguage('es'); // Default to Spanish for demo
+        default:
+          return { success: false, message: `Unknown tool method: ${tool.methodName}` };
+      }
+    } catch (error) {
+      return { 
+        success: false, 
+        message: `Failed to execute ${tool.methodName}(): ${error instanceof Error ? error.message : String(error)}` 
+      };
     }
   }
   
-  /**
-   * Simulate clicking a button by testId
-   */
-  private async simulateClick(testId: string): Promise<{ success: boolean; message: string }> {
-    if (typeof document === 'undefined') {
-      return { success: false, message: 'Document not available (server-side)' };
-    }
-    
-    const element = document.querySelector(`[data-testid="${testId}"]`) as HTMLElement;
-    if (!element) {
-      return { success: false, message: `Element with testId "${testId}" not found` };
-    }
-    
-    element.click();
-    return { success: true, message: `Successfully clicked ${testId}` };
-  }
-  
-  /**
-   * Simulate sending a message
-   */
-  private async simulateSendMessage(): Promise<{ success: boolean; message: string }> {
-    if (typeof document === 'undefined') {
-      return { success: false, message: 'Document not available (server-side)' };
-    }
-    
-    const input = document.querySelector('[data-testid="chat-input"]') as HTMLInputElement;
-    const button = document.querySelector('[data-testid="send-chat-message"]') as HTMLButtonElement;
-    
-    if (!input || !button) {
-      return { success: false, message: 'Chat interface not found' };
-    }
-    
-    // Use the current input value or a default message
-    const message = input.value || 'Hello from AI!';
-    button.click();
-    
-    return { success: true, message: `Message sent: "${message}"` };
-  }
   
   /**
    * Get available commands for help
