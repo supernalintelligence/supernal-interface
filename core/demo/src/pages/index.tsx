@@ -6,11 +6,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { initializeProviders } from '../providers/DemoToolProviders';
+import { initializeUIControls, setStateChangeCallback, getDemoState } from '../lib/UIControls';
 import { DemoAIInterface, AICommand } from '../lib/AIInterface';
 import { ToolRegistry } from '@supernal-interface/core/browser';
 import { ToolVisualization } from '../components/ToolVisualization';
 import { AutoTesting } from '../components/AutoTesting';
+import { InteractiveWidgets } from '../components/InteractiveWidgets';
 import { safeConfirm } from '../utils/browserUtils';
 
 interface Message {
@@ -64,9 +65,18 @@ export default function LandingPage() {
   const [pendingCommand, setPendingCommand] = useState<AICommand | null>(null);
   const [activeTab, setActiveTab] = useState<'demo' | 'tools' | 'testing'>('demo');
 
-  // Initialize the tool providers on mount
+  // Initialize the UI controls on mount
   useEffect(() => {
-    initializeProviders();
+    initializeUIControls();
+    
+    // Set up state change callback to sync with React state
+    setStateChangeCallback((newState) => {
+      setDemoState(newState);
+    });
+    
+    // Initialize with current state
+    setDemoState(getDemoState());
+    
     const stats = ToolRegistry.getStats();
     const allTools = Array.from(ToolRegistry.getAllTools().values());
     const requiresApproval = allTools.filter(t => t.requiresApproval).length;
@@ -135,14 +145,20 @@ export default function LandingPage() {
   const handleAICommand = async () => {
     if (!aiInput.trim()) return;
 
+    console.log(`🎯 User command: "${aiInput}"`);
     addMessage(aiInput, 'user');
+    
     const command = aiInterface.findToolsForCommand(aiInput);
+    console.log(`🔍 Found command:`, command);
     
     if (command.requiresApproval) {
+      console.log(`⚠️ Command requires approval: ${command.tool?.name}`);
       setPendingCommand(command);
       addMessage(`⚠️ "${command.tool?.name}" requires approval. This is a ${command.tool?.dangerLevel} action. Approve?`, 'ai');
     } else {
+      console.log(`▶️ Executing command without approval...`);
       const response = await aiInterface.executeCommand(command);
+      console.log(`📋 Execution response:`, response);
       addMessage(response.message, 'ai');
       
       if (response.success && response.executedTool) {
@@ -352,6 +368,13 @@ export default function LandingPage() {
             {activeTab === 'demo' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
+                  {/* Interactive UI Widgets - REQ-001 */}
+                  <InteractiveWidgets 
+                    onWidgetInteraction={(widgetType, action, result) => {
+                      addMessage(`🎮 Widget "${widgetType}" ${action}: ${result.message}`, 'system');
+                    }}
+                  />
+
                   {/* Available Tools Kit */}
                   <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
                     <h2 className="text-xl font-semibold mb-4">🔧 Available Tools</h2>
