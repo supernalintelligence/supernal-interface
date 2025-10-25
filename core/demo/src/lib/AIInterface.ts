@@ -177,12 +177,14 @@ export class DemoAIInterface {
           return await uiControls.clearChatHistory();
         case 'deleteDemoData':
           return await uiControls.deleteDemoData();
-        case 'toggleNotifications':
-          return await uiControls.toggleNotifications();
-        case 'setTheme':
-          return await uiControls.setTheme('dark'); // Default to dark for demo
-        case 'setLanguage':
-          return await uiControls.setLanguage('es'); // Default to Spanish for demo
+        case 'toggleFeature':
+          return await uiControls.toggleFeature();
+        case 'setPriority':
+          return await uiControls.setPriority('high'); // Default to high for demo
+        case 'setStatus':
+          return await uiControls.setStatus('active'); // Default to active for demo
+        case 'submitForm':
+          return await uiControls.submitForm('AI User'); // Default name for demo
         default:
           return { success: false, message: `Unknown tool method: ${tool.methodName}` };
       }
