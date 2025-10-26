@@ -178,19 +178,6 @@ export default function LandingPage() {
           onNavigate={(page) => setCurrentPage(page)} 
         />
 
-        {/* Path Indicator */}
-        <div className="bg-white border-b">
-          <div className="max-w-7xl mx-auto px-4 py-2">
-            <div className="flex items-center text-sm text-gray-500">
-              <span>@supernal-interface</span>
-              <span className="mx-2">/</span>
-              <span className="text-blue-600 font-medium">
-                {currentPage === 'home' ? '' : currentPage}
-                {currentPage === 'home' && 'home'}
-              </span>
-            </div>
-          </div>
-        </div>
 
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
           
@@ -521,56 +508,249 @@ async saveData(): Promise<{
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-2xl font-bold mb-6 text-gray-800">📖 Documentation</h2>
               
-              <div className="space-y-8">
+              <div className="space-y-12">
+                {/* 1-2-3 Breakdown */}
                 <section>
-                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Getting Started</h3>
-                  <div className="prose prose-gray max-w-none">
-                    <p className="text-gray-600 mb-4">
-                      The @supernal-interface system allows you to create AI-controllable tools using simple decorators.
-                      Here's how to get started:
-                    </p>
-                    
-                    <div className="mb-4">
-                      <h4 className="font-medium mb-2">1. Install the Package</h4>
-                      <CodeBlock language="bash">
-{`npm install @supernal-interface/core`}
-                      </CodeBlock>
+                  <div className="text-center mb-8">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Three Simple Steps</h3>
+                    <p className="text-gray-600">Transform any method into an AI-controllable tool</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Step 1 */}
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-2xl font-bold text-blue-600">1</span>
+                      </div>
+                      <h4 className="text-xl font-semibold mb-3 text-gray-800">Decorate Your Components</h4>
+                      <p className="text-gray-600 mb-4">Add <InlineCode>@Tool</InlineCode> decorators to your methods</p>
                     </div>
                     
-                    <div className="mb-4">
-                      <h4 className="font-medium mb-2">2. Create a Tool Provider</h4>
-                      <CodeBlock language="typescript" title="MyTools.ts">
+                    {/* Step 2 */}
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-2xl font-bold text-green-600">2</span>
+                      </div>
+                      <h4 className="text-xl font-semibold mb-3 text-gray-800">Expose to Your System</h4>
+                      <p className="text-gray-600 mb-4">Initialize classes to auto-register tools</p>
+                    </div>
+                    
+                    {/* Step 3 */}
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-2xl font-bold text-purple-600">3</span>
+                      </div>
+                      <h4 className="text-xl font-semibold mb-3 text-gray-800">Use and Execute</h4>
+                      <p className="text-gray-600 mb-4">AI can now control your tools via natural language</p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Detailed Implementation */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-6 text-gray-800">Complete Implementation Guide</h3>
+                  
+                  {/* Step 1 Detail */}
+                  <div className="mb-8">
+                    <div className="flex items-center mb-4">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-sm font-bold text-blue-600">1</span>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-800">Decorate Your Components</h4>
+                    </div>
+                    
+                    <div className="ml-11">
+                      <p className="text-gray-600 mb-4">
+                        Start by installing the package and adding decorators to your existing methods:
+                      </p>
+                      
+                      <div className="mb-4">
+                        <CodeBlock language="bash" title="Installation">
+{`npm install @supernal-interface/core`}
+                        </CodeBlock>
+                      </div>
+                      
+                      <CodeBlock language="typescript" title="UIControls.ts">
 {`import { Tool, ToolProvider } from '@supernal-interface/core';
 
 @ToolProvider({ category: 'ui-controls' })
-export class MyTools {
+export class UIControls {
+  private currentTheme = 'light';
+  
   @Tool({
-    testId: 'my-button',
-    description: 'Click a button',
+    testId: 'theme-toggle',
+    description: 'Toggle between light and dark theme',
     aiEnabled: true,
     dangerLevel: 'safe',
-    examples: ['click button', 'press button']
+    examples: ['toggle theme', 'switch theme', 'change theme'],
+    origin: { path: '/demo', elements: ['#theme-toggle'] }
   })
-  async clickButton(): Promise<{ success: boolean; message: string }> {
-    // Your implementation here
-    return { success: true, message: 'Button clicked!' };
+  async toggleTheme(): Promise<{ success: boolean; message: string }> {
+    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+    document.body.classList.toggle('dark');
+    return { 
+      success: true, 
+      message: \`Theme switched to \${this.currentTheme}\` 
+    };
+  }
+
+  @Tool({
+    testId: 'form-submit',
+    description: 'Submit form with user data',
+    aiEnabled: true,
+    dangerLevel: 'moderate',
+    examples: ['submit form', 'save form', 'send form data'],
+    origin: { path: '/demo', elements: ['#user-form'] }
+  })
+  async submitForm(data: { name: string; email: string }): Promise<{ success: boolean; message: string }> {
+    // Validation
+    if (!data.name || !data.email) {
+      return { success: false, message: 'Name and email are required' };
+    }
+    
+    // Process form
+    console.log('Processing form:', data);
+    return { success: true, message: \`Form submitted for \${data.name}\` };
   }
 }`}
                       </CodeBlock>
                     </div>
+                  </div>
+                  
+                  {/* Step 2 Detail */}
+                  <div className="mb-8">
+                    <div className="flex items-center mb-4">
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-sm font-bold text-green-600">2</span>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-800">Expose to Your System</h4>
+                    </div>
                     
-                    <div className="mb-4">
-                      <h4 className="font-medium mb-2">3. Register and Use</h4>
+                    <div className="ml-11">
+                      <p className="text-gray-600 mb-4">
+                        Initialize your tool classes to automatically register them with the system:
+                      </p>
+                      
                       <CodeBlock language="typescript" title="app.ts">
-{`import { ToolRegistry } from '@supernal-interface/core';
-import { MyTools } from './MyTools';
+{`import { ToolRegistry } from '@supernal-interface/core/browser';
+import { UIControls } from './UIControls';
 
-// Initialize your tools
-const myTools = new MyTools();
+// Initialize your tool providers - they auto-register via decorators
+const uiControls = new UIControls();
 
-// Tools are automatically registered via decorators
-// Now they're available for AI execution!`}
+// Verify registration (optional)
+console.log('Registered tools:', ToolRegistry.getAllTools());
+
+// You can also search for specific tools
+const themeTools = ToolRegistry.searchTools('theme');
+console.log('Theme-related tools:', themeTools);`}
                       </CodeBlock>
+                      
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                        <h5 className="font-medium text-blue-800 mb-2">🔍 What happens during registration:</h5>
+                        <ul className="text-sm text-blue-700 space-y-1">
+                          <li>• Tools are automatically discovered via decorators</li>
+                          <li>• Each tool gets a unique ID and metadata</li>
+                          <li>• Natural language examples are indexed for AI matching</li>
+                          <li>• Origin information is stored for context-aware execution</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Step 3 Detail */}
+                  <div className="mb-8">
+                    <div className="flex items-center mb-4">
+                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-sm font-bold text-purple-600">3</span>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-800">Use and Execute</h4>
+                    </div>
+                    
+                    <div className="ml-11">
+                      <p className="text-gray-600 mb-4">
+                        Now your tools are ready for AI execution through multiple interfaces:
+                      </p>
+                      
+                      <div className="space-y-6">
+                        <div>
+                          <h5 className="font-medium mb-2 text-gray-700">AI Interface (Natural Language)</h5>
+                          <CodeBlock language="typescript" title="AI Execution">
+{`import { DemoAIInterface } from './AIInterface';
+
+const aiInterface = new DemoAIInterface();
+
+// Natural language execution
+const result = await aiInterface.executeCommand({
+  query: 'toggle theme',
+  toolId: 'theme-toggle',
+  method: 'toggleTheme',
+  parameters: {}
+});
+
+console.log(result);
+// Output: { success: true, message: 'Theme switched to dark' }
+
+// With parameters
+const formResult = await aiInterface.executeCommand({
+  query: 'submit form with John Doe',
+  toolId: 'form-submit', 
+  method: 'submitForm',
+  parameters: { name: 'John Doe', email: 'john@example.com' }
+});`}
+                          </CodeBlock>
+                        </div>
+                        
+                        <div>
+                          <h5 className="font-medium mb-2 text-gray-700">Direct Tool Access</h5>
+                          <CodeBlock language="typescript" title="Direct Execution">
+{`// Get tool from registry
+const tool = ToolRegistry.getTool('theme-toggle');
+if (tool) {
+  const instance = tool.instance;
+  const result = await instance.toggleTheme();
+  console.log(result);
+}
+
+// Or find by search
+const tools = ToolRegistry.searchTools('submit form');
+const formTool = tools[0];
+if (formTool) {
+  const result = await formTool.instance.submitForm({
+    name: 'Jane Doe',
+    email: 'jane@example.com'
+  });
+}`}
+                          </CodeBlock>
+                        </div>
+                        
+                        <div>
+                          <h5 className="font-medium mb-2 text-gray-700">Testing Integration</h5>
+                          <CodeBlock language="typescript" title="Automated Testing">
+{`import { ToolTester } from './ToolTester';
+
+const tester = new ToolTester();
+
+// Run comprehensive tests
+const results = await tester.runAllTests();
+console.log(\`Tests: \${results.passed} passed, \${results.failed} failed\`);
+
+// Test specific tool
+const themeResults = await tester.testTool('theme-toggle');
+console.log('Theme toggle tests:', themeResults);`}
+                          </CodeBlock>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+                        <h5 className="font-medium text-green-800 mb-2">✅ Your tools are now:</h5>
+                        <ul className="text-sm text-green-700 space-y-1">
+                          <li>• Controllable via natural language commands</li>
+                          <li>• Automatically tested for reliability</li>
+                          <li>• Context-aware based on page/element availability</li>
+                          <li>• Safe with built-in danger level controls</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </section>
@@ -654,24 +834,63 @@ async toggleTheme(): Promise<{ success: boolean; message: string }> {
                       </CodeBlock>
                     </div>
                     <div>
-                      <h4 className="font-medium mb-3 text-gray-700">Result</h4>
-                      <div className="bg-gray-50 border rounded-lg p-4">
-                        <div className="mb-3">
-                          <span className="text-sm text-gray-600">Available on:</span>
-                          <InlineCode copyable>/demo</InlineCode>
+                      <h4 className="font-medium mb-3 text-gray-700">Execution & Results</h4>
+                      <div className="bg-gray-50 border rounded-lg p-4 space-y-4">
+                        <div>
+                          <span className="text-sm text-gray-600 font-medium">Tool Registration:</span>
+                          <CodeBlock language="typescript" title="Automatic Registration">
+{`// Tools are automatically registered when class is instantiated
+import { UIControls } from './UIControls';
+const uiControls = new UIControls();
+
+// Check registration
+import { ToolRegistry } from '@supernal-interface/core/browser';
+console.log(ToolRegistry.getAllTools());
+// Output: Map with 'theme-toggle' tool registered`}
+                          </CodeBlock>
                         </div>
-                        <div className="mb-3">
-                          <span className="text-sm text-gray-600">AI Commands:</span>
-                          <div className="flex flex-wrap gap-2 mt-1">
-                            <InlineCode copyable>toggle theme</InlineCode>
-                            <InlineCode copyable>switch theme</InlineCode>
-                            <InlineCode copyable>change theme</InlineCode>
-                          </div>
+                        
+                        <div>
+                          <span className="text-sm text-gray-600 font-medium">AI Execution:</span>
+                          <CodeBlock language="typescript" title="AI Interface Usage">
+{`import { DemoAIInterface } from './AIInterface';
+const aiInterface = new DemoAIInterface();
+
+// Natural language execution
+const result = await aiInterface.executeCommand({
+  query: 'toggle theme',
+  toolId: 'theme-toggle',
+  method: 'toggleTheme',
+  parameters: {}
+});
+
+console.log(result);
+// Output: { success: true, message: 'Theme switched to dark' }`}
+                          </CodeBlock>
                         </div>
-                        <div className="bg-green-50 border border-green-200 rounded p-3">
-                          <div className="text-sm text-green-800">
-                            ✅ <strong>Success Response:</strong><br/>
-                            <code className="text-xs">{"{ success: true, message: 'Theme switched to dark' }"}</code>
+                        
+                        <div>
+                          <span className="text-sm text-gray-600 font-medium">Direct Tool Access:</span>
+                          <CodeBlock language="typescript" title="Direct Method Call">
+{`// Get tool from registry
+const tool = ToolRegistry.getTool('theme-toggle');
+if (tool) {
+  const instance = tool.instance;
+  const result = await instance.toggleTheme();
+  console.log(result);
+  // Output: { success: true, message: 'Theme switched to light' }
+}`}
+                          </CodeBlock>
+                        </div>
+                        
+                        <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                          <div className="text-sm text-blue-800">
+                            <strong>💡 Available Commands:</strong><br/>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <InlineCode copyable>toggle theme</InlineCode>
+                              <InlineCode copyable>switch theme</InlineCode>
+                              <InlineCode copyable>change theme</InlineCode>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -723,35 +942,68 @@ async submitForm(data: { name: string; email: string }): Promise<{ success: bool
                       </CodeBlock>
                     </div>
                     <div>
-                      <h4 className="font-medium mb-3 text-gray-700">Test Results</h4>
-                      <div className="bg-gray-50 border rounded-lg p-4 space-y-3">
-                        <div className="mb-3">
-                          <span className="text-sm text-gray-600">Available on:</span>
-                          <InlineCode copyable>/demo</InlineCode>
+                      <h4 className="font-medium mb-3 text-gray-700">Execution & Test Results</h4>
+                      <div className="bg-gray-50 border rounded-lg p-4 space-y-4">
+                        <div>
+                          <span className="text-sm text-gray-600 font-medium">AI Command Processing:</span>
+                          <CodeBlock language="typescript" title="Natural Language to Parameters">
+{`// AI processes natural language and extracts parameters
+const command = aiInterface.findToolsForCommand('submit form with John Doe');
+console.log(command);
+// Output: {
+//   toolId: 'form-submit',
+//   method: 'submitForm', 
+//   parameters: { name: 'John Doe', email: 'john@example.com' }
+// }
+
+const result = await aiInterface.executeCommand(command);`}
+                          </CodeBlock>
                         </div>
                         
-                        <div className="bg-green-50 border border-green-200 rounded p-3">
-                          <div className="text-sm text-green-800">
-                            ✅ <strong>Valid Input:</strong><br/>
-                            <code className="text-xs">{"{ name: 'John', email: 'john@example.com' }"}</code><br/>
-                            <strong>Result:</strong> Form submitted successfully
+                        <div>
+                          <span className="text-sm text-gray-600 font-medium">Validation & Results:</span>
+                          <div className="space-y-3">
+                            <div className="bg-green-50 border border-green-200 rounded p-3">
+                              <div className="text-sm text-green-800">
+                                ✅ <strong>Valid Input:</strong><br/>
+                                <code className="text-xs">{"{ name: 'John', email: 'john@example.com' }"}</code><br/>
+                                <strong>Result:</strong> Form submitted successfully
+                              </div>
+                            </div>
+                            
+                            <div className="bg-red-50 border border-red-200 rounded p-3">
+                              <div className="text-sm text-red-800">
+                                ❌ <strong>Missing Data:</strong><br/>
+                                <code className="text-xs">{"{ name: '', email: 'john@example.com' }"}</code><br/>
+                                <strong>Result:</strong> Name and email are required
+                              </div>
+                            </div>
+                            
+                            <div className="bg-red-50 border border-red-200 rounded p-3">
+                              <div className="text-sm text-red-800">
+                                ❌ <strong>Invalid Email:</strong><br/>
+                                <code className="text-xs">{"{ name: 'John', email: 'invalid-email' }"}</code><br/>
+                                <strong>Result:</strong> Please provide a valid email address
+                              </div>
+                            </div>
                           </div>
                         </div>
                         
-                        <div className="bg-red-50 border border-red-200 rounded p-3">
-                          <div className="text-sm text-red-800">
-                            ❌ <strong>Missing Data:</strong><br/>
-                            <code className="text-xs">{"{ name: '', email: 'john@example.com' }"}</code><br/>
-                            <strong>Result:</strong> Name and email are required
-                          </div>
-                        </div>
-                        
-                        <div className="bg-red-50 border border-red-200 rounded p-3">
-                          <div className="text-sm text-red-800">
-                            ❌ <strong>Invalid Email:</strong><br/>
-                            <code className="text-xs">{"{ name: 'John', email: 'invalid-email' }"}</code><br/>
-                            <strong>Result:</strong> Please provide a valid email address
-                          </div>
+                        <div>
+                          <span className="text-sm text-gray-600 font-medium">Automated Testing:</span>
+                          <CodeBlock language="typescript" title="Test Execution">
+{`import { ToolTester } from './ToolTester';
+const tester = new ToolTester();
+
+// Test the form tool with various inputs
+const results = await tester.testTool('form-submit');
+console.log(\`Form tests: \${results.passed}/\${results.total} passed\`);
+
+// Results show validation working correctly
+results.forEach(test => {
+  console.log(\`\${test.name}: \${test.passed ? '✅' : '❌'}\`);
+});`}
+                          </CodeBlock>
                         </div>
                       </div>
                     </div>

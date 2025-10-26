@@ -11,6 +11,9 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ currentPage = 'home', onNavigate }) => {
+  const [copiedInstall, setCopiedInstall] = React.useState(false);
+  const [copiedAI, setCopiedAI] = React.useState(false);
+
   const navItems = [
     { id: 'demo', label: 'Demo', path: '/demo' },
     { id: 'docs', label: 'Documentation', path: '/docs' },
@@ -20,64 +23,190 @@ export const Header: React.FC<HeaderProps> = ({ currentPage = 'home', onNavigate
 
   const copyInstallCommand = () => {
     navigator.clipboard.writeText('npm install @supernal-interface/core');
-    // You could add a toast notification here
+    setCopiedInstall(true);
+    setTimeout(() => setCopiedInstall(false), 2000);
   };
 
   const openGitHub = () => {
     window.open('https://github.com/your-org/supernal-interface', '_blank');
   };
 
-  const copyLLMInstructions = () => {
-    const instructions = `# @supernal-interface Deployment Guide
+  const copyForAIAgent = () => {
+    const completeGuide = `# @supernal-interface/core - Complete AI Agent Guide
 
-## Quick Start
+## Overview
+Transform any method into an AI-controllable tool with simple decorators. Built-in testing ensures your tools work correctly before AI uses them.
+
+## Installation
 npm install @supernal-interface/core
 
+## Quick Start
+
+### 1. Create Tool Provider
+\`\`\`typescript
+import { Tool, ToolProvider } from '@supernal-interface/core';
+
+@ToolProvider({ category: 'ui-controls' })
+export class UIControls {
+  @Tool({
+    testId: 'theme-toggle',
+    description: 'Toggle between light and dark theme',
+    aiEnabled: true,
+    dangerLevel: 'safe',
+    examples: ['toggle theme', 'switch theme', 'change theme'],
+    origin: { path: '/demo', elements: ['#theme-toggle'] }
+  })
+  async toggleTheme(): Promise<{ success: boolean; message: string }> {
+    const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.body.classList.toggle('dark');
+    return { success: true, message: \`Theme switched to \${newTheme}\` };
+  }
+
+  @Tool({
+    testId: 'form-submit',
+    description: 'Submit form with user data',
+    aiEnabled: true,
+    dangerLevel: 'moderate',
+    examples: ['submit form', 'save form', 'send form data'],
+    origin: { path: '/demo', elements: ['#user-form', '.form-container'] }
+  })
+  async submitForm(data: { name: string; email: string }): Promise<{ success: boolean; message: string }> {
+    if (!data.name || !data.email) {
+      return { success: false, message: 'Name and email are required' };
+    }
+    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+      return { success: false, message: 'Please provide a valid email address' };
+    }
+    return { success: true, message: \`Form submitted successfully for \${data.name}\` };
+  }
+}
+\`\`\`
+
+### 2. Initialize Tools
+\`\`\`typescript
+import { ToolRegistry } from '@supernal-interface/core/browser';
+import { UIControls } from './UIControls';
+
+// Initialize your tools - they auto-register via decorators
+const uiControls = new UIControls();
+
+// Verify registration
+console.log(ToolRegistry.getAllTools());
+\`\`\`
+
+### 3. AI Interface Usage
+\`\`\`typescript
+import { DemoAIInterface } from './AIInterface';
+
+const aiInterface = new DemoAIInterface();
+
+// Natural language execution
+const result = await aiInterface.executeCommand({
+  query: 'toggle theme',
+  toolId: 'theme-toggle',
+  method: 'toggleTheme',
+  parameters: {}
+});
+
+console.log(result); // { success: true, message: 'Theme switched to dark' }
+\`\`\`
+
+### 4. Direct Tool Access
+\`\`\`typescript
+// Get tool from registry
+const tool = ToolRegistry.getTool('theme-toggle');
+if (tool) {
+  const instance = tool.instance;
+  const result = await instance.toggleTheme();
+  console.log(result);
+}
+\`\`\`
+
+## Tool Decorator Options
+
+| Property | Type | Description |
+|----------|------|-------------|
+| testId | string | Unique identifier for testing |
+| description | string | Human-readable description |
+| aiEnabled | boolean | Whether AI can execute this tool |
+| dangerLevel | 'safe' \\| 'moderate' \\| 'destructive' | Risk level for approval |
+| examples | string[] | Natural language examples for AI matching |
+| origin | object | Path and element availability specification |
+
+## Danger Levels
+- **safe**: No approval required, safe for AI execution
+- **moderate**: May require approval for sensitive operations  
+- **destructive**: Always requires approval for dangerous operations
+
+## Tool Origin Tracking
+\`\`\`typescript
+origin: { 
+  path: '/demo',                    // Tool only works on /demo page
+  elements: ['#theme-toggle'],      // Specific UI elements it controls
+  modal: 'settings'                 // Optional: only when modal is open
+}
+\`\`\`
+
+## Testing System
+The system includes comprehensive testing that validates:
+- ✅ Positive cases: Valid parameters should succeed
+- ❌ Negative cases: Invalid parameters should fail gracefully
+- 🔍 Edge cases: Missing parameters and boundary conditions
+- 📊 Real-time feedback: Progress bars and detailed results
+
 ## Local Development
+\`\`\`bash
 git clone https://github.com/your-org/supernal-interface
 cd supernal-interface/core/demo
 npm install
 npm run dev
 # Runs on http://localhost:3011
+\`\`\`
 
 ## Vercel Deployment
 1. Fork/clone the repository
-2. Connect to Vercel
+2. Connect to Vercel  
 3. Set build command: npm run build
 4. Set output directory: .next
 5. Deploy
 
-## Key Features
-- @Tool decorators for AI-controllable methods
-- Automatic tool registration and discovery
-- Built-in testing with positive/negative cases
-- Natural language command matching
-- AI-safe defaults with explicit opt-in
-- Danger levels and approval requirements
+## Core Architecture
+- **ToolRegistry**: Central registry for all decorated tools
+- **@Tool**: Decorator to mark methods as AI-controllable
+- **@ToolProvider**: Decorator to mark classes as tool providers
+- **ToolMetadata**: Interface describing registered tools
 
-## Example Usage
-@Tool({
-  testId: 'save-data',
-  description: 'Save user data to database',
-  aiEnabled: true,
-  dangerLevel: 'moderate',
-  examples: ['save data', 'store information', 'persist user data']
-})
-async saveData(data: any): Promise<{success: boolean; message: string}> {
-  // Implementation
-  return { success: true, message: 'Data saved successfully' };
-}
+## Browser Support
+\`\`\`typescript
+import { ToolRegistry } from '@supernal-interface/core/browser';
 
-## Testing
-- Built-in comprehensive testing system
-- Validates both success and error cases
-- Real-time progress feedback
-- Integration with chat interface
+// Search tools by natural language
+const tools = ToolRegistry.searchTools('save user data');
+
+// Get all registered tools
+const allTools = ToolRegistry.getAllTools();
+\`\`\`
+
+## Use Cases
+- 🖥️ UI Automation: Let AI control buttons, forms, and interface elements
+- 🔧 DevOps Tools: Deploy, monitor, and manage infrastructure via AI
+- 📊 Data Analysis: Query databases and generate reports through AI
+- 🤖 AI Agents: Build autonomous agents with safe, testable actions
 
 ## Live Demo
-https://your-vercel-deployment.vercel.app`;
+https://supernal-interface-demo.vercel.app
+
+## NPM Package
+https://www.npmjs.com/package/@supernal-interface/core
+
+## Repository
+https://github.com/your-org/supernal-interface`;
     
-    navigator.clipboard.writeText(instructions);
+    navigator.clipboard.writeText(completeGuide);
+    setCopiedAI(true);
+    setTimeout(() => setCopiedAI(false), 2000);
   };
 
   return (
@@ -117,31 +246,53 @@ https://your-vercel-deployment.vercel.app`;
             ))}
           </nav>
 
-          {/* Status Indicator with Actions */}
+          {/* Actions */}
           <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-xs text-gray-600">AI Ready</span>
-            </div>
-            
-            {/* Copy for LLM */}
+            {/* Copy for AI Agent */}
             <button
-              onClick={copyLLMInstructions}
-              className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-              title="Copy for LLM - Complete deployment guide"
+              onClick={copyForAIAgent}
+              className={`flex items-center space-x-2 px-3 py-1 text-xs rounded transition-colors ${
+                copiedAI 
+                  ? 'bg-green-700 text-white' 
+                  : 'bg-green-600 text-white hover:bg-green-700'
+              }`}
+              title="Copy for AI Agent - Complete guide with examples"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
+              {copiedAI ? (
+                <>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <div className="w-2 h-2 bg-green-200 rounded-full animate-pulse"></div>
+                  <span>Copy for AI Agent</span>
+                </>
+              )}
             </button>
             
             {/* Copy Install Command */}
             <button
               onClick={copyInstallCommand}
-              className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              className={`px-3 py-1 text-xs rounded transition-colors ${
+                copiedInstall 
+                  ? 'bg-blue-700 text-white' 
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
               title="Copy install command"
             >
-              npm install
+              {copiedInstall ? (
+                <span className="flex items-center space-x-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Copied!</span>
+                </span>
+              ) : (
+                'npm install'
+              )}
             </button>
             
             {/* GitHub Link */}
