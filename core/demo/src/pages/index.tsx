@@ -16,6 +16,7 @@ import { ToolTestResults } from '../components/ToolTestResults';
 import { QuickToolTest } from '../lib/QuickToolTest';
 import { CodeBlock, InlineCode } from '../components/CodeBlock';
 import { initializeAnalytics, trackPageView, trackToolExecution, trackDemoInteraction, trackTestExecution } from '../lib/analytics';
+import { getDashboardUrl, checkDashboardAvailability, getDashboardAlternatives } from '../lib/dashboardIntegration';
 
 interface Message {
   id: string;
@@ -37,6 +38,8 @@ export default function LandingPage() {
     testName: string;
     isRunning: boolean;
   } | null>(null);
+  const [dashboardAvailable, setDashboardAvailable] = useState<boolean | null>(null);
+  const [dashboardUrl, setDashboardUrl] = useState<string>('');
 
   // Initialize the UI controls and messages on mount
   useEffect(() => {
@@ -46,6 +49,20 @@ export default function LandingPage() {
     // Initialize messages client-side to avoid hydration issues
     setMessages(getInitialMessages());
     
+    // Set up dashboard integration
+    setDashboardUrl(getDashboardUrl());
+    
+  }, []);
+
+  // Check dashboard availability when dashboard page is accessed
+  useEffect(() => {
+    if (currentPage === 'dashboard') {
+      setDashboardAvailable(null); // Show loading state
+      checkDashboardAvailability().then(setDashboardAvailable);
+    }
+  }, [currentPage]);
+
+  useEffect(() => {
     // Get available tools for the tool list - group by category
     const tools = Array.from(ToolRegistry.getAllTools().values())
       .filter(t => t.aiEnabled)
@@ -243,7 +260,88 @@ export default function LandingPage() {
 
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
           
-          {currentPage === 'home' && (
+          {currentPage === 'dashboard' && (
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Project Dashboard</h2>
+              <p className="text-lg text-gray-600">Real-time progress tracking and requirements management</p>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              {dashboardAvailable === true && (
+                <iframe 
+                  src={dashboardUrl}
+                  width="100%" 
+                  height="800"
+                  className="border-0 rounded-lg"
+                  title="Supernal Coding Dashboard"
+                  onError={() => setDashboardAvailable(false)}
+                />
+              )}
+              
+              {dashboardAvailable === false && (
+                <div className="text-center py-20">
+                  <div className="text-gray-500 mb-4">
+                    <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Dashboard Not Available</h3>
+                    <p className="text-gray-600 mb-4">The Supernal Coding dashboard is not currently running.</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mt-6">
+                      {Object.entries(getDashboardAlternatives()).map(([key, option]) => (
+                        <div key={key} className="bg-gray-50 rounded-lg p-4">
+                          <h4 className="font-medium text-gray-900 mb-2">{option.title}</h4>
+                          <p className="text-sm text-gray-600 mb-3">{option.description}</p>
+                          <code className="block bg-gray-800 text-green-400 px-3 py-2 rounded text-xs">
+                            {option.command}
+                          </code>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <button
+                      onClick={() => checkDashboardAvailability().then(setDashboardAvailable)}
+                      className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Check Again
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {dashboardAvailable === null && (
+                <div className="text-center py-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Checking dashboard availability...</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-blue-50 rounded-lg p-6">
+                <h3 className="font-semibold text-blue-900 mb-3">Dashboard Features</h3>
+                <ul className="space-y-2 text-blue-700">
+                  <li>• Requirements tracking and validation</li>
+                  <li>• Kanban workflow visualization</li>
+                  <li>• Progress metrics and analytics</li>
+                  <li>• Git integration and branch management</li>
+                </ul>
+              </div>
+              
+              <div className="bg-green-50 rounded-lg p-6">
+                <h3 className="font-semibold text-green-900 mb-3">Supernal-Coding Commands</h3>
+                <div className="space-y-2 text-green-700">
+                  <code className="block bg-green-100 px-2 py-1 rounded text-sm">sc req new "Feature Name"</code>
+                  <code className="block bg-green-100 px-2 py-1 rounded text-sm">sc dashboard serve</code>
+                  <code className="block bg-green-100 px-2 py-1 rounded text-sm">sc git-smart merge</code>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentPage === 'home' && (
             <>
               {/* Hero Section */}
               <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl shadow-lg text-white p-8 mb-8">

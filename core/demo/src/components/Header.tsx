@@ -17,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPage = 'home', onNavigate
 
   const navItems = [
     { id: 'demo', label: 'Demo', path: '/demo' },
+    { id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
     { id: 'docs', label: 'Documentation', path: '/docs' },
     { id: 'examples', label: 'Examples', path: '/examples' },
     { id: 'api', label: 'API Reference', path: '/api' }

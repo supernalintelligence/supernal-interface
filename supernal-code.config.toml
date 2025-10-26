@@ -1,13 +1,11 @@
 # Supernal Coding Configuration
-# Auto-generated for multi-repo compatibility
-# Generated: 2025-10-25T21:45:49.428Z
+# Generated: 2025-10-26T22:48:00.000Z
 
 [project]
 name = "@supernal-interface"
 type = "requirements-driven"
 git_root = "/Users/ianderrington/git/supernal-nova/platform/services/user-management/packages/@supernal-interface"
 current_branch = "main"
-
 
 [paths]
 # Auto-detected paths based on repository structure
@@ -18,11 +16,8 @@ project_type = "auto_detected"
 # Resolved directory paths
 requirements = "requirements"
 kanban = "kanban"
-# workflow_rules = "workflow-rules"
 templates = "templates"
 tests = "tests"
-# docs = "docs"
-# config = "config"
 
 # Fallback directories for path resolution
 fallback_directories = [
@@ -34,6 +29,20 @@ fallback_directories = [
   "docs", "documentation", "supernal-coding/docs",
   "supernal-coding", "config", ".supernal-coding"
 ]
+
+[requirements]
+# Requirements management configuration
+directory = "requirements"
+template = "requirement-template.md"
+auto_numbering = true
+validation = true
+
+[kanban]
+# Kanban workflow configuration
+directory = "kanban"
+columns = ["BRAINSTORM", "PLANNING", "TODO", "DOING", "BLOCKED", "DONE"]
+auto_move = true
+track_progress = true
 
 [init]
 repository_analysis = true
@@ -61,6 +70,13 @@ multi_repo_support = true
 dynamic_path_resolution = true
 auto_detect_structure = true
 fallback_mechanisms = true
+
+[dashboard]
+# Dashboard configuration
+enabled = true
+port = 3001
+auto_refresh = true
+embedded = true
 
 # Repository-specific overrides (if needed)
 [overrides]

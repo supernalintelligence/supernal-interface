@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "created": "2025-10-25T21:45:49.430Z",
-  "lastUpdated": "2025-10-25T21:45:49.675Z",
+  "created": "2025-10-26T22:47:31.358Z",
+  "lastUpdated": "2025-10-26T22:47:31.425Z",
   "state": "INITIALIZED",
   "subState": null,
   "projectType": "web-frontend",
@@ -9,8 +9,8 @@
     "isGitRepo": true,
     "root": "/Users/ianderrington/git/supernal-nova/platform/services/user-management/packages/@supernal-interface",
     "currentBranch": "main",
-    "hasRemote": false,
-    "lastCommit": "dc8700b6025784deafe3baf95d6f5a07f0eab6d0"
+    "hasRemote": true,
+    "lastCommit": "c849a8146460bfc5f39ac1a79b7f82f734e03615"
   },
   "features": {
     "gitManagement": true,
