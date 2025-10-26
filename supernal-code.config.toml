@@ -1,0 +1,70 @@
+# Supernal Coding Configuration
+# Auto-generated for multi-repo compatibility
+# Generated: 2025-10-25T21:45:49.428Z
+
+[project]
+name = "@supernal-interface"
+type = "requirements-driven"
+git_root = "/Users/ianderrington/git/supernal-nova/platform/services/user-management/packages/@supernal-interface"
+current_branch = "main"
+
+
+[paths]
+# Auto-detected paths based on repository structure
+auto_detect = true
+git_root_detection = true
+project_type = "auto_detected"
+
+# Resolved directory paths
+requirements = "requirements"
+kanban = "kanban"
+# workflow_rules = "workflow-rules"
+templates = "templates"
+tests = "tests"
+# docs = "docs"
+# config = "config"
+
+# Fallback directories for path resolution
+fallback_directories = [
+  "requirements", "reqs", "specs", "docs/requirements",
+  "kanban", "tasks", "workflow", "supernal-coding/kanban",
+  "workflow-rules", "rules", "workflow", "supernal-coding/workflow-rules",
+  "templates", "template", "supernal-coding/templates",
+  "tests", "test", "spec", "tests/requirements",
+  "docs", "documentation", "supernal-coding/docs",
+  "supernal-coding", "config", ".supernal-coding"
+]
+
+[init]
+repository_analysis = true
+auto_configure_paths = true
+interactive_setup = true
+validate_structure = true
+
+[init.detection]
+detect_requirements_dir = true
+detect_kanban_dir = true
+detect_workflow_rules = true
+detect_templates = true
+detect_tests_dir = true
+detect_docs_dir = true
+detect_config_dir = true
+
+[validation]
+validate_git_repository = true
+validate_path_resolution = true
+validate_structure_compatibility = true
+auto_fix_common_issues = true
+
+[compatibility]
+multi_repo_support = true
+dynamic_path_resolution = true
+auto_detect_structure = true
+fallback_mechanisms = true
+
+# Repository-specific overrides (if needed)
+[overrides]
+# Uncomment and customize if needed:
+# requirements_dir = "custom/requirements"
+# kanban_dir = "custom/kanban"
+# workflow_rules_dir = "custom/workflow-rules"
