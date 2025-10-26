@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { trackPageView, trackDocumentationUsage } from '../lib/analytics';
 
 interface HeaderProps {
   currentPage?: string;
@@ -205,6 +206,7 @@ https://www.npmjs.com/package/@supernal-interface/core
 https://github.com/your-org/supernal-interface`;
     
     navigator.clipboard.writeText(completeGuide);
+    trackDocumentationUsage('ai-agent-guide', 'copy');
     setCopiedAI(true);
     setTimeout(() => setCopiedAI(false), 2000);
   };
@@ -216,7 +218,10 @@ https://github.com/your-org/supernal-interface`;
           
           {/* Logo and Title - Clickable */}
           <button 
-            onClick={() => onNavigate?.('home')}
+            onClick={() => {
+              onNavigate?.('home');
+              trackPageView('home');
+            }}
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
           >
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
@@ -247,7 +252,10 @@ https://github.com/your-org/supernal-interface`;
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => onNavigate?.(item.id)}
+                onClick={() => {
+                  onNavigate?.(item.id);
+                  trackPageView(item.id);
+                }}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   currentPage === item.id
                     ? 'bg-blue-100 text-blue-700'

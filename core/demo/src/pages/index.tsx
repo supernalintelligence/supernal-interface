@@ -15,6 +15,7 @@ import { ChatBubble } from '../components/ChatBubble';
 import { ToolTestResults } from '../components/ToolTestResults';
 import { QuickToolTest } from '../lib/QuickToolTest';
 import { CodeBlock, InlineCode } from '../components/CodeBlock';
+import { initializeAnalytics, trackPageView, trackToolExecution, trackDemoInteraction, trackTestExecution } from '../lib/analytics';
 
 interface Message {
   id: string;
@@ -40,6 +41,7 @@ export default function LandingPage() {
   // Initialize the UI controls and messages on mount
   useEffect(() => {
     initializeUIControls();
+    initializeAnalytics();
     
     // Initialize messages client-side to avoid hydration issues
     setMessages(getInitialMessages());
@@ -164,10 +166,70 @@ export default function LandingPage() {
   return (
     <>
       <Head>
-        <title>@supernal-interface/core - AI Tool System Demo</title>
-        <meta name="description" content="Working demo of the @supernal-interface/core AI tool system" />
+        <title>Supernal Interface - Make Any App AI-Controllable | Universal AI Tool System</title>
+        <meta name="description" content="Transform any application into an AI-controllable system with simple @Tool decorators. Built-in testing, safety controls, and natural language processing. Try the live demo now." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        {/* SEO Meta Tags */}
+        <meta name="keywords" content="AI tools, artificial intelligence, automation, decorators, TypeScript, JavaScript, testing, natural language processing, tool registry, supernal" />
+        <meta name="author" content="Supernal AI" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://interface.supernal.ai" />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://interface.supernal.ai" />
+        <meta property="og:title" content="Supernal Interface - Make Any App AI-Controllable" />
+        <meta property="og:description" content="Transform any application into an AI-controllable system with simple @Tool decorators. Built-in testing, safety controls, and natural language processing." />
+        <meta property="og:image" content="https://interface.supernal.ai/logo.png" />
+        <meta property="og:site_name" content="Supernal Interface" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://interface.supernal.ai" />
+        <meta name="twitter:title" content="Supernal Interface - Make Any App AI-Controllable" />
+        <meta name="twitter:description" content="Transform any application into an AI-controllable system with simple @Tool decorators. Built-in testing, safety controls, and natural language processing." />
+        <meta name="twitter:image" content="https://interface.supernal.ai/logo.png" />
+        
+        {/* Additional SEO */}
+        <meta name="theme-color" content="#3B82F6" />
+        <meta name="msapplication-TileColor" content="#3B82F6" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/logo.png" />
+        
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "Supernal Interface",
+              "description": "Universal AI Tool System - Make any application AI-controllable with simple decorators",
+              "url": "https://interface.supernal.ai",
+              "applicationCategory": "DeveloperApplication",
+              "operatingSystem": "Any",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              "creator": {
+                "@type": "Organization",
+                "name": "Supernal AI",
+                "url": "https://supernal.ai"
+              },
+              "featureList": [
+                "AI-controllable tools with @Tool decorators",
+                "Built-in testing and validation",
+                "Natural language processing",
+                "Safety controls and danger levels",
+                "TypeScript and JavaScript support",
+                "Automated tool discovery"
+              ]
+            })
+          }}
+        />
       </Head>
 
       <div className="min-h-screen bg-gray-50">
