@@ -37,6 +37,13 @@ export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({
     setTimeout(() => setFeedback(null), 2000);
   };
 
+  // Helper to get highlight classes for widgets
+  const getHighlightClass = (widgetId: string) => {
+    return demoState.highlightedWidget === widgetId 
+      ? 'ring-4 ring-blue-400 ring-opacity-75 animate-pulse bg-blue-50' 
+      : '';
+  };
+
   const handleButtonClick = async (action: 'open' | 'close') => {
     try {
       const uiControls = getUIControls();
@@ -135,17 +142,17 @@ export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
         {/* Button Widgets */}
-        <div className="space-y-3">
+        <div className={`space-y-3 p-3 rounded transition-all duration-300 ${getHighlightClass('open-menu-button') || getHighlightClass('close-menu-button') ? 'bg-blue-50 ring-2 ring-blue-300' : ''}`}>
           <label className="block text-sm font-medium text-gray-700">Button Widgets</label>
           <div className="space-y-2">
             <button
               data-testid="open-main-menu"
               onClick={() => handleButtonClick('open')}
-              className={`w-full px-3 py-2 text-sm rounded transition-colors ${
+              className={`w-full px-3 py-2 text-sm rounded transition-all duration-300 ${
                 demoState.menuOpen 
                   ? 'bg-green-600 text-white' 
                   : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
+              } ${getHighlightClass('open-menu-button')}`}
             >
               {demoState.menuOpen ? '✅ Menu Open' : 'Open Menu'}
             </button>
@@ -153,7 +160,7 @@ export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({
               data-testid="close-main-menu"
               onClick={() => handleButtonClick('close')}
               disabled={!demoState.menuOpen}
-              className="w-full px-3 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className={`w-full px-3 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-300 ${getHighlightClass('close-menu-button')}`}
             >
               Close Menu
             </button>
@@ -161,10 +168,10 @@ export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({
         </div>
 
         {/* Checkbox Widgets */}
-        <div className="space-y-3">
+        <div className={`space-y-3 p-3 rounded transition-all duration-300 ${getHighlightClass('feature-toggle-widget') || getHighlightClass('notifications-toggle-widget') ? 'bg-blue-50 ring-2 ring-blue-300' : ''}`}>
           <label className="block text-sm font-medium text-gray-700">Checkbox Widgets</label>
           <div className="space-y-3">
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center space-x-2 p-2 rounded transition-all duration-300 ${getHighlightClass('feature-toggle-widget')}`}>
               <input
                 data-testid="feature-toggle-widget"
                 type="checkbox"
@@ -176,7 +183,7 @@ export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({
                 Enable Feature {demoState.featureEnabled && '✅'}
               </span>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center space-x-2 p-2 rounded transition-all duration-300 ${getHighlightClass('notifications-toggle-widget')}`}>
               <input
                 data-testid="notifications-toggle-widget"
                 type="checkbox"
@@ -192,7 +199,7 @@ export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({
         </div>
 
         {/* Radio Widgets */}
-        <div className="space-y-3">
+        <div className={`space-y-3 p-3 rounded transition-all duration-300 ${getHighlightClass('priority-radio-widget') ? 'bg-blue-50 ring-2 ring-blue-300' : ''}`}>
           <label className="block text-sm font-medium text-gray-700">Radio Widgets</label>
           <div className="space-y-2">
             <div className="text-xs text-gray-600 mb-1">Priority Level:</div>
@@ -216,11 +223,11 @@ export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({
         </div>
 
         {/* Select Widgets */}
-        <div className="space-y-3">
+        <div className={`space-y-3 p-3 rounded transition-all duration-300 ${getHighlightClass('status-select-widget') || getHighlightClass('theme-select-widget') ? 'bg-blue-50 ring-2 ring-blue-300' : ''}`}>
           <label className="block text-sm font-medium text-gray-700">Select Widgets</label>
           <div className="space-y-2">
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Status:</label>
+            <div className={`p-2 rounded transition-all duration-300 ${getHighlightClass('status-select-widget')}`}>
+              <label className="block text-xs text-gray-600 mb-1">Status: {demoState.status}</label>
               <select
                 data-testid="status-select-widget"
                 value={demoState.status}
@@ -233,8 +240,8 @@ export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({
                 <option value="disabled">Disabled</option>
               </select>
             </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Theme:</label>
+            <div className={`p-2 rounded transition-all duration-300 ${getHighlightClass('theme-select-widget')}`}>
+              <label className="block text-xs text-gray-600 mb-1">Theme: {demoState.theme}</label>
               <select
                 data-testid="theme-select-widget"
                 value={demoState.theme}
@@ -251,7 +258,7 @@ export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({
       </div>
 
       {/* Form Widget - Full Width */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
+      <div className={`mt-6 pt-4 border-t border-gray-200 p-3 rounded transition-all duration-300 ${getHighlightClass('form-submit-widget') ? 'bg-blue-50 ring-2 ring-blue-300' : ''}`}>
         <label className="block text-sm font-medium text-gray-700 mb-2">Form Widget</label>
         <form onSubmit={handleFormSubmit} className="flex gap-2">
           <input
@@ -266,7 +273,7 @@ export const InteractiveWidgets: React.FC<InteractiveWidgetsProps> = ({
             data-testid="form-submit-widget"
             type="submit"
             disabled={!formName.trim()}
-            className="px-4 py-2 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className={`px-4 py-2 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-300 ${getHighlightClass('form-submit-widget')}`}
           >
             Submit Form
           </button>
