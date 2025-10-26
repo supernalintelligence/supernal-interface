@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "PORT=$(node scripts/find-port.js) && next dev -p $PORT",
+    "prebuild": "cd ../ && npm run build",
     "build": "next build",
     "start": "PORT=$(node scripts/find-port.js) && next start -p $PORT",
     "export": "next build && next export",
