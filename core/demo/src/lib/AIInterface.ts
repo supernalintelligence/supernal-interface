@@ -157,26 +157,12 @@ export class DemoAIInterface {
     try {
       const uiControls = getUIControls();
       
-      // Call the @Tool decorated method directly
+      // Call the @Tool decorated method directly - only widget tools
       switch (tool.methodName) {
         case 'openMainMenu':
           return await uiControls.openMainMenu();
         case 'closeMainMenu':
           return await uiControls.closeMainMenu();
-        case 'navigateToDocs':
-          return await uiControls.navigateToDocs();
-        case 'generateCodeExample':
-          return await uiControls.generateCodeExample();
-        case 'runTestSimulation':
-          return await uiControls.runTestSimulation();
-        case 'resetDemoState':
-          return await uiControls.resetDemoState();
-        case 'sendChatMessage':
-          return await uiControls.sendChatMessage();
-        case 'clearChatHistory':
-          return await uiControls.clearChatHistory();
-        case 'deleteDemoData':
-          return await uiControls.deleteDemoData();
         case 'toggleFeature':
           return await uiControls.toggleFeature();
         case 'setPriority':
