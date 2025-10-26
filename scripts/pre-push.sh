@@ -10,6 +10,13 @@ echo "🔍 Running pre-push checks for @supernal-interface/core..."
 # Change to core directory
 cd "$(dirname "$0")/../core"
 
+echo "🔍 Checking package-lock.json sync..."
+if ! npm ci --dry-run --silent > /dev/null 2>&1; then
+    echo "❌ package-lock.json is out of sync with package.json"
+    echo "💡 Run 'npm install' to fix this issue"
+    exit 1
+fi
+
 echo "📦 Installing dependencies..."
 npm ci --silent
 
@@ -38,6 +45,14 @@ fi
 
 echo "🎯 Building demo..."
 cd demo
+
+echo "🔍 Checking demo package-lock.json sync..."
+if ! npm ci --dry-run --silent > /dev/null 2>&1; then
+    echo "❌ Demo package-lock.json is out of sync with package.json"
+    echo "💡 Run 'cd demo && npm install' to fix this issue"
+    exit 1
+fi
+
 npm ci --silent
 npm run build
 

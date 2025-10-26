@@ -21,6 +21,21 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'core/package-lock.json'
 
+      - name: Check package-lock.json sync (Core)
+        run: |
+          cd core
+          echo "🔍 Checking if package-lock.json is in sync with package.json..."
+          if ! npm ci --dry-run > /dev/null 2>&1; then
+            echo "❌ Core package-lock.json is out of sync with package.json"
+            echo "💡 The following packages are missing from lock file:"
+            npm ci --dry-run 2>&1 | grep "Missing:" || true
+            echo ""
+            echo "🔧 To fix this locally, run: npm install"
+            echo "📝 Then commit the updated package-lock.json"
+            exit 1
+          fi
+          echo "✅ Core package-lock.json is in sync"
+
       - name: Install dependencies
         run: |
           cd core
@@ -45,6 +60,21 @@ jobs:
         run: |
           cd core
           npm run build
+
+      - name: Check package-lock.json sync (Demo)
+        run: |
+          cd core/demo
+          echo "🔍 Checking if demo package-lock.json is in sync with package.json..."
+          if ! npm ci --dry-run > /dev/null 2>&1; then
+            echo "❌ Demo package-lock.json is out of sync with package.json"
+            echo "💡 The following packages are missing from lock file:"
+            npm ci --dry-run 2>&1 | grep "Missing:" || true
+            echo ""
+            echo "🔧 To fix this locally, run: cd core/demo && npm install"
+            echo "📝 Then commit the updated package-lock.json"
+            exit 1
+          fi
+          echo "✅ Demo package-lock.json is in sync"
 
       - name: Install demo dependencies
         run: |
