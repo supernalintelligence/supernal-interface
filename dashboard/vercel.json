@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "name": "supernal-coding-dashboard",
+  "buildCommand": "echo 'No build needed'",
+  "outputDirectory": ".",
+  "public": false
+}

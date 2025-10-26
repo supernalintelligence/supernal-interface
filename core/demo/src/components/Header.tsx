@@ -219,8 +219,22 @@ https://github.com/your-org/supernal-interface`;
             onClick={() => onNavigate?.('home')}
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">SI</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+              <img 
+                src="/logo.png" 
+                alt="Supernal Interface Logo" 
+                className="w-8 h-8 rounded-lg"
+                onError={(e) => {
+                  // Fallback to gradient logo if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg items-center justify-center hidden">
+                <span className="text-white font-bold text-sm">SI</span>
+              </div>
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900">@supernal-interface</h1>

@@ -302,7 +302,6 @@ function decorateClassMethod(target: any, propertyKey: string | symbol, descript
     
     DEBUG && console.log(`[Tool] Registered tool: ${toolMetadata.name} (${toolMetadata.category})`);
   };
-}
 
 /**
  * Generate basic input schema (since we can't extract from JSDoc at runtime)
@@ -673,7 +672,7 @@ function inferActionType(methodName: string): 'click' | 'type' | 'select' | 'nav
 export function getStandaloneTools(): ToolMetadata[] {
   try {
     const { ToolRegistry } = require('../registry/ToolRegistry');
-    return Array.from(ToolRegistry.getAllTools().values()).filter(tool => tool.isStandalone);
+    return ToolRegistry.getAllTools().filter((tool: ToolMetadata) => tool.isStandalone);
   } catch (error) {
     console.error('Failed to get tools from registry:', error);
     return [];

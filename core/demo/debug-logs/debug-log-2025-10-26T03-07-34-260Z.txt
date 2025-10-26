@@ -1,0 +1,20 @@
+[2025-10-26T03:07:27.000Z] === STARTING PAGE COLLAPSE DEBUG TEST ===
+[2025-10-26T03:07:27.005Z] Navigating to demo page...
+[2025-10-26T03:07:27.125Z] CONSOLE [error]: Failed to load resource: the server responded with a status of 404 (Not Found)
+[2025-10-26T03:07:27.158Z] CONSOLE [error]: Failed to load resource: the server responded with a status of 404 (Not Found)
+[2025-10-26T03:07:27.159Z] NETWORK FAIL: http://localhost:3010/_next/static/chunks/main.js - net::ERR_ABORTED
+[2025-10-26T03:07:27.159Z] CONSOLE [error]: Failed to load resource: the server responded with a status of 404 (Not Found)
+[2025-10-26T03:07:27.159Z] NETWORK FAIL: http://localhost:3010/_next/static/chunks/react-refresh.js - net::ERR_ABORTED
+[2025-10-26T03:07:27.160Z] CONSOLE [error]: Failed to load resource: the server responded with a status of 404 (Not Found)
+[2025-10-26T03:07:27.161Z] NETWORK FAIL: http://localhost:3010/_next/static/chunks/pages/_app.js - net::ERR_ABORTED
+[2025-10-26T03:07:27.165Z] CONSOLE [error]: Failed to load resource: the server responded with a status of 404 (Not Found)
+[2025-10-26T03:07:27.165Z] NETWORK FAIL: http://localhost:3010/_next/static/chunks/pages/_error.js - net::ERR_ABORTED
+[2025-10-26T03:07:27.165Z] Waiting for page to load...
+[2025-10-26T03:07:27.193Z] CONSOLE [error]: Failed to load resource: the server responded with a status of 404 (Not Found)
+[2025-10-26T03:07:27.701Z] DOM Snapshot [INITIAL_LOAD]: Length=2044, React=true, Error=false
+[2025-10-26T03:07:27.701Z] Checking initial page elements...
+[2025-10-26T03:07:27.758Z] Initial widgets found: 0
+[2025-10-26T03:07:27.786Z] Initial chat bubble found: 0
+[2025-10-26T03:07:27.791Z] DOM Snapshot [BEFORE_TOGGLE_NOTIFICATIONS]: Length=2044, React=true, Error=false
+[2025-10-26T03:07:27.791Z] === ABOUT TO EXECUTE TOGGLE NOTIFICATIONS ===
+[2025-10-26T03:07:27.791Z] Attempting to type in chat interface...

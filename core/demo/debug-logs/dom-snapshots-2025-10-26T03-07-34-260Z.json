@@ -1,0 +1,18 @@
+[
+  {
+    "label": "INITIAL_LOAD",
+    "timestamp": "2025-10-26T03:07:27.701Z",
+    "bodyLength": 2044,
+    "htmlPreview": "<!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>404: This page could not be found</title><meta name=\"next-head-count\" content=\"3\"><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/webpack.js\" defer=\"\"><...",
+    "isReactIntact": true,
+    "hasErrorBoundary": false
+  },
+  {
+    "label": "BEFORE_TOGGLE_NOTIFICATIONS",
+    "timestamp": "2025-10-26T03:07:27.791Z",
+    "bodyLength": 2044,
+    "htmlPreview": "<!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>404: This page could not be found</title><meta name=\"next-head-count\" content=\"3\"><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/webpack.js\" defer=\"\"><...",
+    "isReactIntact": true,
+    "hasErrorBoundary": false
+  }
+]

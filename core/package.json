@@ -29,7 +29,15 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "generate-tests": "ts-node src/cli/generate-tests.ts",
-    "init-project": "ts-node src/cli/init.ts"
+    "init-project": "ts-node src/cli/init.ts",
+    "prepublishOnly": "npm run build && npm run test && npm run lint",
+    "prepack": "npm run build",
+    "version": "npm run build && git add -A dist",
+    "postversion": "git push && git push --tags",
+    "pre-push": "npm run lint && npm run test && npm run build",
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish"
   },
   "bin": {
     "supernal-interface": "dist/cli/generate.js"
@@ -57,7 +65,9 @@
     "ts-jest": "^29.1.1",
     "eslint": "^8.54.0",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
-    "@typescript-eslint/parser": "^6.12.0"
+    "@typescript-eslint/parser": "^6.12.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0"
   },
   "files": [
     "dist",
@@ -67,5 +77,16 @@
     "type": "git",
     "url": "https://github.com/supernal-ai/supernal-nova.git",
     "directory": "platform/services/user-management/packages/@supernal-interface/core"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run pre-push"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

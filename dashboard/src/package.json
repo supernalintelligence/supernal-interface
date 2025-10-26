@@ -1,0 +1,28 @@
+{
+  "name": "supernal-coding-dashboard",
+  "version": "1.0.0",
+  "description": "Real-time progress dashboard for Supernal Coding ecosystem",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test-data": "node -e \"const {loadRequirements, generateStats} = require('./server.js'); const reqs = loadRequirements(); console.log('Requirements:', reqs.length); console.log('Stats:', generateStats(reqs));\""
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "path": "^0.12.7"
+  },
+  "keywords": [
+    "dashboard",
+    "requirements",
+    "progress",
+    "visualization",
+    "supernal-coding"
+  ],
+  "author": "Supernal Coding",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+} 

@@ -1,0 +1,65 @@
+{
+  "equipmentPack": {
+    "version": "1.0.0",
+    "installedAt": "2025-10-25T21:45:49.428Z",
+    "components": {
+      "coreSystem": {
+        "cursorRules": [
+          "agent-on-board",
+          "dev_workflow",
+          "agent-hand-off",
+          "avoid-anti-patterns",
+          "testing-strategy",
+          "self-improve"
+        ],
+        "directories": [
+          "kanban",
+          "requirements",
+          "tests/e2e",
+          "tests/requirements",
+          "supernal-code-package/lib/cli/commands",
+          "scripts",
+          "templates"
+        ],
+        "scripts": [
+          "agent-onboard.sh",
+          "validate-dependencies.sh",
+          "setup-pre-commit-hooks.sh",
+          "check-type-duplicates.cjs"
+        ],
+        "packages": [
+          "chalk",
+          "commander",
+          "fs-extra",
+          "inquirer",
+          "yaml",
+          "handlebars",
+          "@iarna/toml"
+        ]
+      },
+      "gitManagement": {
+        "cursorRules": [
+          "git-smart"
+        ],
+        "scripts": [
+          "check-branch-compliance.sh",
+          "git-hierarchy-utils.sh"
+        ]
+      },
+      "projectSpecific": {
+        "cursorRules": [
+          "react-patterns",
+          "component-architecture",
+          "frontend-performance",
+          "accessibility-guidelines"
+        ],
+        "packages": [
+          "eslint",
+          "prettier",
+          "jest",
+          "cypress"
+        ]
+      }
+    }
+  }
+}
