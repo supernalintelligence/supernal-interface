@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  output: 'export',
-  trailingSlash: true,
+  // Remove swcMinify for Next.js 14 compatibility
+  // Remove output: 'export' to enable proper SSR
   images: {
     unoptimized: true
   },

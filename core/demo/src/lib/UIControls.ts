@@ -1,18 +1,29 @@
 /**
- * Simple UI Controls with @Tool decorators
+ * UI Controls with @Tool decorators - ONLY for widgets that actually exist
  * 
- * These match exactly the 5 widgets in the component zoo.
- * No bullshit, just the actual widget controls.
+ * Each @Tool method corresponds to exactly one widget in the component zoo.
+ * NO extra tools, NO missing tools - perfect 1:1 mapping.
  */
 
 import { Tool, ToolProvider } from '@supernal-interface/core/browser';
 
-// Global state for the demo UI
+// Global state for the demo UI - ONLY for actual widgets
 let demoState = {
+  // Button widgets
   menuOpen: false,
+  
+  // Checkbox widgets  
   featureEnabled: false,
+  notificationsEnabled: false,
+  
+  // Radio widget
   priority: 'medium' as 'high' | 'medium' | 'low',
+  
+  // Select widgets
   status: 'inactive',
+  theme: 'light' as 'light' | 'dark' | 'auto',
+  
+  // Chat messages (for chat interface, not a widget)
   messages: [] as Array<{id: string, text: string, type: 'user' | 'ai' | 'system', timestamp: string}>
 };
 
@@ -35,36 +46,37 @@ function updateState(changes: Partial<typeof demoState>) {
 })
 export class UIControls {
   
-  // Button Widget - Open Menu
+  // ===== BUTTON WIDGETS =====
+  
   @Tool({
-    testId: 'menu-toggle-widget',
-    description: 'Toggle the main menu (button widget)',
+    testId: 'open-main-menu',
+    description: 'Open the main menu (button widget)',
     aiEnabled: true,
     dangerLevel: 'safe',
-    examples: ['open menu', 'close menu', 'toggle menu']
+    examples: ['open menu', 'show menu', 'display menu']
   })
   async openMainMenu(): Promise<{ success: boolean; message: string }> {
-    const newState = !demoState.menuOpen;
-    updateState({ menuOpen: newState });
-    return { success: true, message: `Main menu ${newState ? 'opened' : 'closed'}` };
+    updateState({ menuOpen: true });
+    return { success: true, message: 'Main menu opened' };
   }
 
   @Tool({
-    testId: 'menu-close-widget',
+    testId: 'close-main-menu',
     description: 'Close the main menu (button widget)',
     aiEnabled: true,
     dangerLevel: 'safe',
-    examples: ['close menu', 'hide menu']
+    examples: ['close menu', 'hide menu', 'dismiss menu']
   })
   async closeMainMenu(): Promise<{ success: boolean; message: string }> {
     updateState({ menuOpen: false });
     return { success: true, message: 'Main menu closed' };
   }
 
-  // Checkbox Widget - Enable Feature
+  // ===== CHECKBOX WIDGETS =====
+  
   @Tool({
     testId: 'feature-toggle-widget',
-    description: 'Toggle a feature on or off (checkbox widget)',
+    description: 'Toggle feature on/off (checkbox widget)',
     aiEnabled: true,
     dangerLevel: 'safe',
     examples: ['toggle feature', 'enable feature', 'disable feature']
@@ -75,36 +87,68 @@ export class UIControls {
     return { success: true, message: `Feature ${newState ? 'enabled' : 'disabled'}` };
   }
 
-  // Radio Widget - Priority Selection
   @Tool({
-    testId: 'priority-high-widget',
+    testId: 'notifications-toggle-widget',
+    description: 'Toggle notifications on/off (checkbox widget)',
+    aiEnabled: true,
+    dangerLevel: 'safe',
+    examples: ['toggle notifications', 'enable notifications', 'disable notifications']
+  })
+  async toggleNotifications(enabled?: boolean): Promise<{ success: boolean; message: string }> {
+    const newState = enabled !== undefined ? enabled : !demoState.notificationsEnabled;
+    updateState({ notificationsEnabled: newState });
+    return { success: true, message: `Notifications ${newState ? 'enabled' : 'disabled'}` };
+  }
+
+  // ===== RADIO WIDGET =====
+  
+  @Tool({
+    testId: 'priority-radio-widget',
     description: 'Set priority level (radio widget)',
     aiEnabled: true,
     dangerLevel: 'safe',
-    examples: ['set priority high', 'high priority', 'priority high']
+    examples: ['set priority high', 'priority medium', 'low priority', 'change priority']
   })
   async setPriority(priority: 'high' | 'medium' | 'low'): Promise<{ success: boolean; message: string }> {
     updateState({ priority });
     return { success: true, message: `Priority set to ${priority}` };
   }
 
-  // Select Widget - Status Selection
+  // ===== SELECT WIDGETS =====
+  
   @Tool({
     testId: 'status-select-widget',
-    description: 'Change status setting (select widget)',
+    description: 'Change status (select widget)',
     aiEnabled: true,
     dangerLevel: 'safe',
-    examples: ['set status active', 'change status', 'status inactive']
+    examples: ['set status active', 'change status', 'status inactive', 'status pending']
   })
   async setStatus(status: string): Promise<{ success: boolean; message: string }> {
     updateState({ status });
     return { success: true, message: `Status changed to ${status}` };
   }
 
-  // Form Widget - Submit Form
+  @Tool({
+    testId: 'theme-select-widget',
+    description: 'Change theme (select widget)',
+    aiEnabled: true,
+    dangerLevel: 'safe',
+    examples: ['set theme dark', 'light theme', 'auto theme', 'change theme']
+  })
+  async setTheme(theme: 'light' | 'dark' | 'auto'): Promise<{ success: boolean; message: string }> {
+    updateState({ theme });
+    // Apply theme to document for visual feedback
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+    return { success: true, message: `Theme changed to ${theme}` };
+  }
+
+  // ===== FORM WIDGET =====
+  
   @Tool({
     testId: 'form-submit-widget',
-    description: 'Submit form with data (form widget)',
+    description: 'Submit form with name (form widget)',
     aiEnabled: true,
     dangerLevel: 'safe',
     examples: ['submit form', 'send form', 'submit name']

@@ -159,26 +159,24 @@ export class ChatProvider {
 
   @Tool({
     testId: 'toggle-chat-panel',
-    description: 'Toggle the chat panel visibility',
+    description: 'Toggle the chat panel visibility (now permanently visible)',
     aiEnabled: true,
     dangerLevel: 'safe',
     examples: ['toggle chat', 'show hide chat', 'chat panel'],
-    elementType: 'button',
+    elementType: 'div',
     actionType: 'click'
   })
   async toggleChatPanel(): Promise<{ success: boolean; message: string }> {
     try {
-      const toggleButton = safeQuerySelector('[data-testid="toggle-chat-panel"]');
-      if (!toggleButton) {
-        return { success: false, message: 'Toggle button not found' };
-      }
+      // Chat panel is now permanent, so just return a message
+      safeDispatchEvent('chat:panel-info', { 
+        message: 'Chat panel is now permanently visible',
+        timestamp: new Date().toISOString() 
+      });
       
-      toggleButton.click();
-      safeDispatchEvent('chat:panel-toggled', { timestamp: new Date().toISOString() });
-      
-      return { success: true, message: 'Chat panel toggled successfully' };
+      return { success: true, message: '💬 Chat panel is now permanently visible and cannot be hidden' };
     } catch (error) {
-      return { success: false, message: `Failed to toggle chat: ${error instanceof Error ? error.message : String(error)}` };
+      return { success: false, message: `Failed to get chat info: ${error instanceof Error ? error.message : String(error)}` };
     }
   }
 }
@@ -339,18 +337,33 @@ export class AdminProvider {
 // ===== INITIALIZE PROVIDERS =====
 
 let providersInitialized = false;
+let providerInstances: {
+  navigation: NavigationProvider;
+  chat: ChatProvider;
+  demoControl: DemoControlProvider;
+  admin: AdminProvider;
+} | null = null;
 
 export function initializeProviders() {
   if (providersInitialized) return;
   
   // Instantiate all providers to register their @Tool decorated methods
-  new NavigationProvider();
-  new ChatProvider();
-  new DemoControlProvider();
-  new AdminProvider();
+  providerInstances = {
+    navigation: new NavigationProvider(),
+    chat: new ChatProvider(),
+    demoControl: new DemoControlProvider(),
+    admin: new AdminProvider()
+  };
   
   providersInitialized = true;
   
   console.log('🔧 @supernal-interface/core providers initialized');
   console.log('🤖 AI can now control the demo interface');
+}
+
+export function getProviderInstances() {
+  if (!providerInstances) {
+    throw new Error('Providers not initialized. Call initializeProviders() first.');
+  }
+  return providerInstances;
 }

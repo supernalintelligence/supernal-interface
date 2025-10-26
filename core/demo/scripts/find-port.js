@@ -11,7 +11,8 @@ function findAvailablePort(startPort = 3010, maxPort = 3020) {
       }
       
       server.listen(port, () => {
-        const foundPort = server.address().port;
+        const address = server.address();
+        const foundPort = address && typeof address === 'object' ? address.port : port;
         server.close(() => {
           resolve(foundPort);
         });
