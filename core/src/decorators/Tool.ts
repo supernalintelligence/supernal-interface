@@ -125,8 +125,7 @@ export interface ToolMetadata {
   uiSelector?: string;                 // @deprecated - use selector
 }
 
-// Global registry for standalone function tools
-const standaloneToolRegistry = new Map<string, ToolMetadata>();
+// Note: All tools (class methods and standalone functions) are registered in the unified ToolRegistry
 
 /**
  * Tool decorator - supports both class methods and standalone functions
@@ -210,18 +209,15 @@ function decorateStandaloneFunction(func: Function, config: ToolConfig) {
     uiSelector: config.uiSelector || config.selector
   };
   
-  // Register standalone function
-  standaloneToolRegistry.set(toolMetadata.toolId, toolMetadata);
-  
-  // Register with ToolRegistry if available
+  // Register with unified ToolRegistry
   try {
     const { ToolRegistry } = require('../registry/ToolRegistry');
     ToolRegistry.registerTool(providerName, functionName, toolMetadata);
   } catch (error) {
-    console.error('Failed to register standalone tool:', error);
+    console.error('Failed to register tool:', error);
   }
   
-  DEBUG && console.log(`[Tool] Registered standalone function: ${toolMetadata.name} (${toolMetadata.category})`);
+  DEBUG && console.log(`[Tool] Registered function: ${toolMetadata.name} (${toolMetadata.category})`);
   
   // Return enhanced function with metadata
   const enhancedFunction = func as any;
@@ -671,15 +667,30 @@ function inferActionType(methodName: string): 'click' | 'type' | 'select' | 'nav
 }
 
 /**
- * Get all standalone function tools
+ * Get all tools (both class methods and standalone functions)
+ * @deprecated Use ToolRegistry.getAllTools() instead
  */
 export function getStandaloneTools(): ToolMetadata[] {
-  return Array.from(standaloneToolRegistry.values());
+  try {
+    const { ToolRegistry } = require('../registry/ToolRegistry');
+    return Array.from(ToolRegistry.getAllTools().values()).filter(tool => tool.isStandalone);
+  } catch (error) {
+    console.error('Failed to get tools from registry:', error);
+    return [];
+  }
 }
 
 /**
- * Get standalone tool by ID
+ * Get tool by ID (works for both class methods and standalone functions)
+ * @deprecated Use ToolRegistry.getTool() instead
  */
 export function getStandaloneTool(toolId: string): ToolMetadata | undefined {
-  return standaloneToolRegistry.get(toolId);
+  try {
+    const { ToolRegistry } = require('../registry/ToolRegistry');
+    const tool = ToolRegistry.getTool(toolId);
+    return tool?.isStandalone ? tool : undefined;
+  } catch (error) {
+    console.error('Failed to get tool from registry:', error);
+    return undefined;
+  }
 }

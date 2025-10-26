@@ -12,14 +12,18 @@ npm install @supernal-interface/core
 
 ## ✨ Features
 
-- **🎯 Simple Decorators**: Transform methods into AI tools with `@Tool` decorators
+- **🎯 Simple Decorators**: Transform methods AND functions into AI tools with `@Tool` decorators
+- **🔧 Standalone Functions**: Decorate individual functions without classes
 - **🧪 Built-in Testing**: Comprehensive testing validates positive and negative cases
 - **🤖 AI-Safe by Default**: Explicit opt-in for AI control with danger levels
 - **📝 Natural Language**: AI matches commands using examples and descriptions
-- **🔧 Direct Execution**: No DOM simulation, direct method calls
+- **🎯 Smart Identifiers**: Use `toolId`, `elementId`, `selector` instead of generic `testId`
+- **📍 Origin Tracking**: Know exactly where tools are available (path, elements, modals)
 - **⚡ Auto-Registration**: Tools automatically register in global registry
 
 ## 📖 Basic Usage
+
+### Class-Based Tools (Traditional)
 
 ```typescript
 import { Tool, ToolProvider } from '@supernal-interface/core';
@@ -27,17 +31,56 @@ import { Tool, ToolProvider } from '@supernal-interface/core';
 @ToolProvider({ category: 'ui-controls' })
 export class MyTools {
   @Tool({
-    testId: 'save-button',
+    toolId: 'save-button',
     description: 'Save user data to database',
     aiEnabled: true,
     dangerLevel: 'safe',
-    examples: ['save data', 'store information', 'persist data']
+    examples: ['save data', 'store information', 'persist data'],
+    origin: {
+      path: '/dashboard',
+      elements: ['#save-btn', '.save-controls']
+    }
   })
   async saveData(data: any): Promise<{ success: boolean; message: string }> {
     // Your implementation
     return { success: true, message: 'Data saved successfully!' };
   }
 }
+```
+
+### Standalone Functions (NEW!)
+
+```typescript
+import { Tool, getStandaloneTools } from '@supernal-interface/core';
+
+@Tool({
+  toolId: 'calculate-tax',
+  providerName: 'TaxUtils',
+  description: 'Calculate tax amount based on income and rate',
+  aiEnabled: true,
+  dangerLevel: 'safe',
+  examples: ['calculate tax for $50000 at 25%', 'compute tax amount'],
+  origin: {
+    path: '/calculator',
+    elements: ['#tax-calculator']
+  }
+})
+function calculateTax(income: number, rate: number): { tax: number; afterTax: number } {
+  const tax = income * (rate / 100);
+  return {
+    tax: Math.round(tax * 100) / 100,
+    afterTax: Math.round((income - tax) * 100) / 100
+  };
+}
+
+// Access all tools from unified registry
+import { ToolRegistry } from '@supernal-interface/core';
+const allTools = Array.from(ToolRegistry.getAllTools().values());
+console.log('Available tools:', allTools.map(t => t.toolId));
+
+// Filter by type if needed
+const standaloneTools = allTools.filter(tool => tool.isStandalone);
+const classTools = allTools.filter(tool => !tool.isStandalone);
 ```
 
 ## 🎮 Live Demo

@@ -5,7 +5,7 @@
  * class methods and standalone functions, using the improved naming conventions.
  */
 
-import { Tool, ToolProvider, getStandaloneTools } from '../src/decorators/Tool';
+import { Tool, ToolProvider, ToolRegistry } from '@supernal-interface/core';
 
 // ===== STANDALONE FUNCTION TOOLS =====
 
@@ -124,9 +124,11 @@ async function demonstrateUsage() {
   // Access tool metadata
   console.log('Calculate tax metadata:', (calculateTax as any).__toolMetadata__);
   
-  // Get all standalone tools
-  const standaloneTools = getStandaloneTools();
+  // Get all tools from unified registry
+  const allTools = Array.from(ToolRegistry.getAllTools().values());
+  const standaloneTools = allTools.filter(tool => tool.isStandalone);
   console.log('Registered standalone tools:', standaloneTools.map(t => t.toolId));
+  console.log('All registered tools:', allTools.map(t => t.toolId));
   
   console.log('=== Class-based Tools Demo ===');
   

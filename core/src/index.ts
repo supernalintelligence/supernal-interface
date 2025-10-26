@@ -7,6 +7,8 @@
 
 // Core decorators
 export { Tool, ToolConfig, ToolMetadata } from './decorators/Tool';
+// Deprecated: Use ToolRegistry.getAllTools() and ToolRegistry.getTool() instead
+export { getStandaloneTools, getStandaloneTool } from './decorators/Tool';
 export { ToolProvider, ToolProviderConfig, getToolProviderConfig, isToolProvider } from './decorators/ToolProvider';
 
 // Registry system (simplified - no execution bundling)

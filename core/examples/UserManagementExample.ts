@@ -5,7 +5,7 @@
  * with AI safety controls.
  */
 
-import { Tool, ToolProvider } from '../src/decorators';
+import { Tool, ToolProvider } from '@supernal-interface/core';
 
 interface User {
   id: string;
