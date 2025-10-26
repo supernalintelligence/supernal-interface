@@ -27,6 +27,59 @@ export const Header: React.FC<HeaderProps> = ({ currentPage = 'home', onNavigate
     window.open('https://github.com/your-org/supernal-interface', '_blank');
   };
 
+  const copyLLMInstructions = () => {
+    const instructions = `# @supernal-interface Deployment Guide
+
+## Quick Start
+npm install @supernal-interface/core
+
+## Local Development
+git clone https://github.com/your-org/supernal-interface
+cd supernal-interface/core/demo
+npm install
+npm run dev
+# Runs on http://localhost:3011
+
+## Vercel Deployment
+1. Fork/clone the repository
+2. Connect to Vercel
+3. Set build command: npm run build
+4. Set output directory: .next
+5. Deploy
+
+## Key Features
+- @Tool decorators for AI-controllable methods
+- Automatic tool registration and discovery
+- Built-in testing with positive/negative cases
+- Natural language command matching
+- AI-safe defaults with explicit opt-in
+- Danger levels and approval requirements
+
+## Example Usage
+@Tool({
+  testId: 'save-data',
+  description: 'Save user data to database',
+  aiEnabled: true,
+  dangerLevel: 'moderate',
+  examples: ['save data', 'store information', 'persist user data']
+})
+async saveData(data: any): Promise<{success: boolean; message: string}> {
+  // Implementation
+  return { success: true, message: 'Data saved successfully' };
+}
+
+## Testing
+- Built-in comprehensive testing system
+- Validates both success and error cases
+- Real-time progress feedback
+- Integration with chat interface
+
+## Live Demo
+https://your-vercel-deployment.vercel.app`;
+    
+    navigator.clipboard.writeText(instructions);
+  };
+
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -70,6 +123,17 @@ export const Header: React.FC<HeaderProps> = ({ currentPage = 'home', onNavigate
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-xs text-gray-600">AI Ready</span>
             </div>
+            
+            {/* Copy for LLM */}
+            <button
+              onClick={copyLLMInstructions}
+              className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+              title="Copy for LLM - Complete deployment guide"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </button>
             
             {/* Copy Install Command */}
             <button

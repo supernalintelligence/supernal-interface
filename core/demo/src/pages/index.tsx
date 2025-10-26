@@ -14,6 +14,7 @@ import { Header } from '../components/Header';
 import { ChatBubble } from '../components/ChatBubble';
 import { ToolTestResults } from '../components/ToolTestResults';
 import { QuickToolTest } from '../lib/QuickToolTest';
+import { CodeBlock, InlineCode } from '../components/CodeBlock';
 
 interface Message {
   id: string;
@@ -176,6 +177,20 @@ export default function LandingPage() {
           currentPage={currentPage} 
           onNavigate={(page) => setCurrentPage(page)} 
         />
+
+        {/* Path Indicator */}
+        <div className="bg-white border-b">
+          <div className="max-w-7xl mx-auto px-4 py-2">
+            <div className="flex items-center text-sm text-gray-500">
+              <span>@supernal-interface</span>
+              <span className="mx-2">/</span>
+              <span className="text-blue-600 font-medium">
+                {currentPage === 'home' ? '' : currentPage}
+                {currentPage === 'home' && 'home'}
+              </span>
+            </div>
+          </div>
+        </div>
 
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
           
@@ -507,72 +522,6 @@ async saveData(): Promise<{
               <h2 className="text-2xl font-bold mb-6 text-gray-800">📖 Documentation</h2>
               
               <div className="space-y-8">
-                {/* Copy for LLM Section */}
-                <section className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-blue-800">🤖 Copy for LLM - Deployment Instructions</h3>
-                    <button
-                      onClick={() => {
-                        const text = document.getElementById('llm-instructions')?.innerText || '';
-                        navigator.clipboard.writeText(text);
-                      }}
-                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-                    >
-                      Copy All
-                    </button>
-                  </div>
-                  <div id="llm-instructions" className="bg-white p-4 rounded border text-sm font-mono whitespace-pre-wrap">
-{`# @supernal-interface Deployment Guide
-
-## Quick Start
-npm install @supernal-interface/core
-
-## Local Development
-git clone https://github.com/your-org/supernal-interface
-cd supernal-interface/core/demo
-npm install
-npm run dev
-# Runs on http://localhost:3011
-
-## Vercel Deployment
-1. Fork/clone the repository
-2. Connect to Vercel
-3. Set build command: npm run build
-4. Set output directory: .next
-5. Deploy
-
-## Key Features
-- @Tool decorators for AI-controllable methods
-- Automatic tool registration and discovery
-- Built-in testing with positive/negative cases
-- Natural language command matching
-- AI-safe defaults with explicit opt-in
-- Danger levels and approval requirements
-
-## Example Usage
-@Tool({
-  testId: 'save-data',
-  description: 'Save user data to database',
-  aiEnabled: true,
-  dangerLevel: 'moderate',
-  examples: ['save data', 'store information', 'persist user data']
-})
-async saveData(data: any): Promise<{success: boolean; message: string}> {
-  // Implementation
-  return { success: true, message: 'Data saved successfully' };
-}
-
-## Testing
-- Built-in comprehensive testing system
-- Validates both success and error cases
-- Real-time progress feedback
-- Integration with chat interface
-
-## Live Demo
-https://your-vercel-deployment.vercel.app`}
-                  </div>
-                </section>
-
                 <section>
                   <h3 className="text-xl font-semibold mb-4 text-gray-800">Getting Started</h3>
                   <div className="prose prose-gray max-w-none">
@@ -581,16 +530,16 @@ https://your-vercel-deployment.vercel.app`}
                       Here's how to get started:
                     </p>
                     
-                    <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                    <div className="mb-4">
                       <h4 className="font-medium mb-2">1. Install the Package</h4>
-                      <code className="bg-gray-800 text-green-400 p-2 rounded block">
-                        npm install @supernal-interface/core
-                      </code>
+                      <CodeBlock language="bash">
+{`npm install @supernal-interface/core`}
+                      </CodeBlock>
                     </div>
                     
-                    <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                    <div className="mb-4">
                       <h4 className="font-medium mb-2">2. Create a Tool Provider</h4>
-                      <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto">
+                      <CodeBlock language="typescript" title="MyTools.ts">
 {`import { Tool, ToolProvider } from '@supernal-interface/core';
 
 @ToolProvider({ category: 'ui-controls' })
@@ -607,12 +556,12 @@ export class MyTools {
     return { success: true, message: 'Button clicked!' };
   }
 }`}
-                      </pre>
+                      </CodeBlock>
                     </div>
                     
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="mb-4">
                       <h4 className="font-medium mb-2">3. Register and Use</h4>
-                      <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto">
+                      <CodeBlock language="typescript" title="app.ts">
 {`import { ToolRegistry } from '@supernal-interface/core';
 import { MyTools } from './MyTools';
 
@@ -621,7 +570,7 @@ const myTools = new MyTools();
 
 // Tools are automatically registered via decorators
 // Now they're available for AI execution!`}
-                      </pre>
+                      </CodeBlock>
                     </div>
                   </div>
                 </section>
@@ -675,75 +624,174 @@ const myTools = new MyTools();
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-2xl font-bold mb-6 text-gray-800">💡 Examples</h2>
               
-              <div className="space-y-8">
+              <div className="space-y-12">
+                {/* Example 1: Basic Theme Toggle */}
                 <section>
-                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Basic Button Control</h3>
-                  <p className="text-gray-600 mb-4">Simple button interaction with AI control:</p>
-                  <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto">
+                  <h3 className="text-xl font-semibold mb-6 text-gray-800">Basic Tool Creation</h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium mb-3 text-gray-700">Code</h4>
+                      <CodeBlock language="typescript" title="ThemeControls.ts">
 {`@Tool({
-  testId: 'open-menu-button',
-  description: 'Open the main menu',
+  testId: 'theme-toggle',
+  description: 'Toggle between light and dark theme',
   aiEnabled: true,
   dangerLevel: 'safe',
-  examples: ['open menu', 'show menu', 'display menu']
+  examples: ['toggle theme', 'switch theme', 'change theme'],
+  origin: { path: '/demo', elements: ['#theme-toggle'] }
 })
-async openMainMenu(): Promise<{ success: boolean; message: string }> {
-  this.menuOpen = true;
-  return { success: true, message: 'Main menu opened' };
-}`}
-                  </pre>
-                </section>
-
-                <section>
-                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Parameter-Based Tools</h3>
-                  <p className="text-gray-600 mb-4">Tools that accept parameters from natural language:</p>
-                  <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto">
-{`@Tool({
-  testId: 'theme-selector',
-  description: 'Change the application theme',
-  aiEnabled: true,
-  dangerLevel: 'safe',
-  examples: ['set theme dark', 'change theme light', 'use auto theme']
-})
-async setTheme(theme: 'light' | 'dark' | 'auto'): Promise<{ success: boolean; message: string }> {
-  if (!['light', 'dark', 'auto'].includes(theme)) {
-    return { 
-      success: false, 
-      message: 'Invalid theme. Use: light, dark, or auto' 
-    };
-  }
+async toggleTheme(): Promise<{ success: boolean; message: string }> {
+  const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
   
-  this.currentTheme = theme;
-  document.documentElement.setAttribute('data-theme', theme);
-  return { success: true, message: \`Theme changed to \${theme}\` };
+  document.body.classList.toggle('dark');
+  
+  return {
+    success: true,
+    message: \`Theme switched to \${newTheme}\`
+  };
 }`}
-                  </pre>
+                      </CodeBlock>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-3 text-gray-700">Result</h4>
+                      <div className="bg-gray-50 border rounded-lg p-4">
+                        <div className="mb-3">
+                          <span className="text-sm text-gray-600">Available on:</span>
+                          <InlineCode copyable>/demo</InlineCode>
+                        </div>
+                        <div className="mb-3">
+                          <span className="text-sm text-gray-600">AI Commands:</span>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            <InlineCode copyable>toggle theme</InlineCode>
+                            <InlineCode copyable>switch theme</InlineCode>
+                            <InlineCode copyable>change theme</InlineCode>
+                          </div>
+                        </div>
+                        <div className="bg-green-50 border border-green-200 rounded p-3">
+                          <div className="text-sm text-green-800">
+                            ✅ <strong>Success Response:</strong><br/>
+                            <code className="text-xs">{"{ success: true, message: 'Theme switched to dark' }"}</code>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </section>
 
+                {/* Example 2: Form Handling with Validation */}
                 <section>
-                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Form Handling</h3>
-                  <p className="text-gray-600 mb-4">Processing form data through AI commands:</p>
-                  <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto">
+                  <h3 className="text-xl font-semibold mb-6 text-gray-800">Form Handling with Validation</h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium mb-3 text-gray-700">Code</h4>
+                      <CodeBlock language="typescript" title="FormControls.ts">
 {`@Tool({
-  testId: 'user-form',
-  description: 'Submit user information form',
+  testId: 'form-submit',
+  description: 'Submit form with user data',
   aiEnabled: true,
   dangerLevel: 'moderate',
-  examples: ['submit form with John', 'send form data', 'save user info']
+  examples: ['submit form', 'save form', 'send form data'],
+  origin: { path: '/demo', elements: ['#user-form', '.form-container'] }
 })
-async submitForm(name: string): Promise<{ success: boolean; message: string }> {
-  if (!name || name.trim().length === 0) {
-    return { 
-      success: false, 
-      message: 'Name is required' 
+async submitForm(data: { name: string; email: string }): Promise<{ success: boolean; message: string }> {
+  // Validate input
+  if (!data.name || !data.email) {
+    return {
+      success: false,
+      message: 'Name and email are required'
     };
   }
   
-  // Process the form data
-  await this.saveUserData({ name: name.trim() });
-  return { success: true, message: \`Form submitted for \${name}\` };
+  // Email validation
+  const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+  if (!emailRegex.test(data.email)) {
+    return {
+      success: false,
+      message: 'Please provide a valid email address'
+    };
+  }
+  
+  // Simulate API call
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  return {
+    success: true,
+    message: \`Form submitted successfully for \${data.name}\`
+  };
 }`}
-                  </pre>
+                      </CodeBlock>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-3 text-gray-700">Test Results</h4>
+                      <div className="bg-gray-50 border rounded-lg p-4 space-y-3">
+                        <div className="mb-3">
+                          <span className="text-sm text-gray-600">Available on:</span>
+                          <InlineCode copyable>/demo</InlineCode>
+                        </div>
+                        
+                        <div className="bg-green-50 border border-green-200 rounded p-3">
+                          <div className="text-sm text-green-800">
+                            ✅ <strong>Valid Input:</strong><br/>
+                            <code className="text-xs">{"{ name: 'John', email: 'john@example.com' }"}</code><br/>
+                            <strong>Result:</strong> Form submitted successfully
+                          </div>
+                        </div>
+                        
+                        <div className="bg-red-50 border border-red-200 rounded p-3">
+                          <div className="text-sm text-red-800">
+                            ❌ <strong>Missing Data:</strong><br/>
+                            <code className="text-xs">{"{ name: '', email: 'john@example.com' }"}</code><br/>
+                            <strong>Result:</strong> Name and email are required
+                          </div>
+                        </div>
+                        
+                        <div className="bg-red-50 border border-red-200 rounded p-3">
+                          <div className="text-sm text-red-800">
+                            ❌ <strong>Invalid Email:</strong><br/>
+                            <code className="text-xs">{"{ name: 'John', email: 'invalid-email' }"}</code><br/>
+                            <strong>Result:</strong> Please provide a valid email address
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Example 3: Tool Origin Tracking */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-6 text-gray-800">Tool Origin Tracking</h3>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <h4 className="font-medium mb-3 text-blue-800">Understanding Tool Origins</h4>
+                    <p className="text-blue-700 mb-4">
+                      The <InlineCode>origin</InlineCode> property helps AI understand where tools are available and what UI elements they interact with.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h5 className="font-medium mb-2 text-blue-800">Path-based Availability</h5>
+                        <CodeBlock language="typescript">
+{`origin: { 
+  path: '/demo',
+  elements: ['#theme-toggle', '.form-container']
+}`}
+                        </CodeBlock>
+                        <p className="text-sm text-blue-600 mt-2">Tool only works on the /demo page</p>
+                      </div>
+                      
+                      <div>
+                        <h5 className="font-medium mb-2 text-blue-800">Modal-based Availability</h5>
+                        <CodeBlock language="typescript">
+{`origin: { 
+  path: '/admin',
+  elements: ['#settings-modal'],
+  modal: 'settings'
+}`}
+                        </CodeBlock>
+                        <p className="text-sm text-blue-600 mt-2">Tool only works when settings modal is open</p>
+                      </div>
+                    </div>
+                  </div>
                 </section>
               </div>
             </div>
