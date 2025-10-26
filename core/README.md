@@ -93,11 +93,42 @@ Try the interactive demo: [https://supernal-interface-demo.vercel.app](https://s
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `testId` | `string` | Unique identifier for testing |
+| `toolId` | `string` | Unique tool identifier (replaces testId) |
+| `elementId` | `string` | DOM element ID for UI tools |
+| `selector` | `string` | CSS selector for UI targeting |
+| `providerName` | `string` | Provider name for standalone functions |
 | `description` | `string` | Human-readable description |
 | `aiEnabled` | `boolean` | Whether AI can execute this tool |
-| `dangerLevel` | `'safe' \| 'moderate' \| 'destructive'` | Risk level for approval |
+| `dangerLevel` | `'safe' \| 'moderate' \| 'dangerous' \| 'destructive'` | Risk level for approval |
 | `examples` | `string[]` | Natural language examples for AI matching |
+| `origin` | `object` | Where tool is available (path, elements, modal) |
+
+### CLI-Like Tool Discovery
+
+```typescript
+import { ToolRegistry } from '@supernal-interface/core';
+
+// Overview of all tools and providers
+console.log(ToolRegistry.overview());
+
+// List all tools (like 'ls')
+console.log(ToolRegistry.list());
+
+// List tools by provider/class
+console.log(ToolRegistry.list({ provider: 'UIControls' }));
+
+// List only AI-enabled tools
+console.log(ToolRegistry.list({ aiEnabled: true }));
+
+// Get detailed help for a tool (like 'man')
+console.log(ToolRegistry.help('uicontrols.setTheme'));
+
+// Search tools by keyword
+console.log(ToolRegistry.find('theme'));
+
+// Get tools by provider programmatically
+const uiTools = ToolRegistry.getToolsByProvider('UIControls');
+```
 
 ### Danger Levels
 

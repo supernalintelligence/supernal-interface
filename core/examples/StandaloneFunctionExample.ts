@@ -121,15 +121,6 @@ async function demonstrateUsage() {
   const formatted = formatCurrency(taxResult.tax);
   console.log('Formatted tax:', formatted);
   
-  // Access tool metadata
-  console.log('Calculate tax metadata:', (calculateTax as any).__toolMetadata__);
-  
-  // Get all tools from unified registry
-  const allTools = Array.from(ToolRegistry.getAllTools().values());
-  const standaloneTools = allTools.filter(tool => tool.isStandalone);
-  console.log('Registered standalone tools:', standaloneTools.map(t => t.toolId));
-  console.log('All registered tools:', allTools.map(t => t.toolId));
-  
   console.log('=== Class-based Tools Demo ===');
   
   // Class-based tools work as usual
@@ -140,8 +131,54 @@ async function demonstrateUsage() {
   const saveResult = await uiControls.saveUserData({ name: 'John', email: 'john@example.com' });
   console.log('Save result:', saveResult);
   
-  // Access class tool metadata
-  console.log('UI Controls tools:', (UIControls.prototype as any).__tools__);
+  console.log('\n=== CLI-Like Tool Discovery Demo ===');
+  
+  // Overview of all tools and providers
+  console.log(ToolRegistry.overview());
+  
+  // List all tools (compact format)
+  console.log('\n--- All Tools (Compact) ---');
+  console.log(ToolRegistry.list());
+  
+  // List tools by provider
+  console.log('\n--- Tools by Provider ---');
+  console.log(ToolRegistry.list({ provider: 'TaxUtils' }));
+  console.log(ToolRegistry.list({ provider: 'UIControls' }));
+  
+  // List only AI-enabled tools
+  console.log('\n--- AI-Enabled Tools Only ---');
+  console.log(ToolRegistry.list({ aiEnabled: true }));
+  
+  // List tools with verbose details
+  console.log('\n--- Verbose Tool List ---');
+  console.log(ToolRegistry.list({ verbose: true }));
+  
+  // Search for tools
+  console.log('\n--- Search Results ---');
+  console.log(ToolRegistry.find('tax'));
+  console.log(ToolRegistry.find('theme'));
+  
+  // Get help for specific tools
+  console.log('\n--- Tool Help ---');
+  console.log(ToolRegistry.help('taxutils.calculateTax'));
+  console.log(ToolRegistry.help('uicontrols.setTheme'));
+  
+  // Try partial matches
+  console.log('\n--- Partial Match Help ---');
+  console.log(ToolRegistry.help('calculate'));
+  
+  // Get tools by provider
+  console.log('\n--- Tools by Provider (Programmatic) ---');
+  const taxTools = ToolRegistry.getToolsByProvider('TaxUtils');
+  console.log('TaxUtils tools:', taxTools.map(t => t.toolId));
+  
+  const uiTools = ToolRegistry.getToolsByProvider('UIControls');
+  console.log('UIControls tools:', uiTools.map(t => t.toolId));
+  
+  // Get all providers
+  console.log('\n--- All Providers ---');
+  const providers = ToolRegistry.getProviders();
+  console.log('Available providers:', providers);
 }
 
 // Run the demo
