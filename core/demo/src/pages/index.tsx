@@ -181,6 +181,170 @@ export default function LandingPage() {
           
           {currentPage === 'home' && (
             <>
+              {/* Hero Section */}
+              <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl shadow-lg text-white p-8 mb-8">
+                <div className="max-w-4xl mx-auto text-center">
+                  <h1 className="text-4xl font-bold mb-4">@supernal-interface</h1>
+                  <p className="text-xl mb-6 opacity-90">
+                    Equip your AI repositories with tools that make them easy to test and expose as LLM-controllable interfaces
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    <button
+                      onClick={() => setCurrentPage('demo')}
+                      className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                    >
+                      Try Live Demo
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage('docs')}
+                      className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
+                    >
+                      Get Started
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Features */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div className="bg-white rounded-lg shadow p-6">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">🎯</span>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">Simple Decorators</h3>
+                  <p className="text-gray-600">
+                    Transform any method into an AI-controllable tool with simple <code className="bg-gray-100 px-1 rounded">@Tool</code> decorators. 
+                    No complex setup required.
+                  </p>
+                </div>
+                
+                <div className="bg-white rounded-lg shadow p-6">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">🧪</span>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">Built-in Testing</h3>
+                  <p className="text-gray-600">
+                    Comprehensive testing system validates both positive and negative cases automatically. 
+                    Ensure your tools work correctly before AI uses them.
+                  </p>
+                </div>
+                
+                <div className="bg-white rounded-lg shadow p-6">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">🤖</span>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">AI-Safe by Default</h3>
+                  <p className="text-gray-600">
+                    Tools are test-only by default. Explicit opt-in for AI control with danger levels and approval requirements.
+                  </p>
+                </div>
+              </div>
+
+              {/* How It Works */}
+              <div className="bg-white rounded-lg shadow p-8">
+                <h2 className="text-2xl font-bold mb-6 text-center">How It Works</h2>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                  <div className="space-y-6">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
+                      <div>
+                        <h3 className="font-semibold mb-2">Decorate Your Methods</h3>
+                        <p className="text-gray-600 text-sm">Add <code className="bg-gray-100 px-1 rounded">@Tool</code> decorators to methods you want AI to control.</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-4">
+                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
+                      <div>
+                        <h3 className="font-semibold mb-2">Automatic Registration</h3>
+                        <p className="text-gray-600 text-sm">Tools are automatically discovered and registered in the global registry.</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-4">
+                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
+                      <div>
+                        <h3 className="font-semibold mb-2">Natural Language Control</h3>
+                        <p className="text-gray-600 text-sm">AI matches natural language commands to your tools using examples and descriptions.</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-4">
+                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">4</div>
+                      <div>
+                        <h3 className="font-semibold mb-2">Test & Deploy</h3>
+                        <p className="text-gray-600 text-sm">Built-in testing validates functionality before AI execution.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-900 text-green-400 p-4 rounded-lg text-sm">
+                    <div className="mb-2 text-gray-400">// Example: AI-controllable button</div>
+                    <pre>{`@Tool({
+  testId: 'save-button',
+  description: 'Save user data',
+  aiEnabled: true,
+  dangerLevel: 'safe',
+  examples: ['save data', 'save file']
+})
+async saveData(): Promise<{
+  success: boolean; 
+  message: string 
+}> {
+  // Your implementation
+  return { 
+    success: true, 
+    message: 'Data saved!' 
+  };
+}`}</pre>
+                  </div>
+                </div>
+              </div>
+
+              {/* Use Cases */}
+              <div className="bg-white rounded-lg shadow p-8">
+                <h2 className="text-2xl font-bold mb-6 text-center">Perfect For</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">🖥️</span>
+                    </div>
+                    <h3 className="font-semibold mb-2">UI Automation</h3>
+                    <p className="text-gray-600 text-sm">Let AI control buttons, forms, and interface elements</p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">🔧</span>
+                    </div>
+                    <h3 className="font-semibold mb-2">DevOps Tools</h3>
+                    <p className="text-gray-600 text-sm">Deploy, monitor, and manage infrastructure via AI</p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">📊</span>
+                    </div>
+                    <h3 className="font-semibold mb-2">Data Analysis</h3>
+                    <p className="text-gray-600 text-sm">Query databases and generate reports through AI</p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">🤖</span>
+                    </div>
+                    <h3 className="font-semibold mb-2">AI Agents</h3>
+                    <p className="text-gray-600 text-sm">Build autonomous agents with safe, testable actions</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {currentPage === 'demo' && (
+            <>
               {/* Widget Examples - Component Zoo */}
               <InteractiveWidgets onWidgetInteraction={handleWidgetInteraction} />
 
@@ -343,6 +507,72 @@ export default function LandingPage() {
               <h2 className="text-2xl font-bold mb-6 text-gray-800">📖 Documentation</h2>
               
               <div className="space-y-8">
+                {/* Copy for LLM Section */}
+                <section className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-semibold text-blue-800">🤖 Copy for LLM - Deployment Instructions</h3>
+                    <button
+                      onClick={() => {
+                        const text = document.getElementById('llm-instructions')?.innerText || '';
+                        navigator.clipboard.writeText(text);
+                      }}
+                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                    >
+                      Copy All
+                    </button>
+                  </div>
+                  <div id="llm-instructions" className="bg-white p-4 rounded border text-sm font-mono whitespace-pre-wrap">
+{`# @supernal-interface Deployment Guide
+
+## Quick Start
+npm install @supernal-interface/core
+
+## Local Development
+git clone https://github.com/your-org/supernal-interface
+cd supernal-interface/core/demo
+npm install
+npm run dev
+# Runs on http://localhost:3011
+
+## Vercel Deployment
+1. Fork/clone the repository
+2. Connect to Vercel
+3. Set build command: npm run build
+4. Set output directory: .next
+5. Deploy
+
+## Key Features
+- @Tool decorators for AI-controllable methods
+- Automatic tool registration and discovery
+- Built-in testing with positive/negative cases
+- Natural language command matching
+- AI-safe defaults with explicit opt-in
+- Danger levels and approval requirements
+
+## Example Usage
+@Tool({
+  testId: 'save-data',
+  description: 'Save user data to database',
+  aiEnabled: true,
+  dangerLevel: 'moderate',
+  examples: ['save data', 'store information', 'persist user data']
+})
+async saveData(data: any): Promise<{success: boolean; message: string}> {
+  // Implementation
+  return { success: true, message: 'Data saved successfully' };
+}
+
+## Testing
+- Built-in comprehensive testing system
+- Validates both success and error cases
+- Real-time progress feedback
+- Integration with chat interface
+
+## Live Demo
+https://your-vercel-deployment.vercel.app`}
+                  </div>
+                </section>
+
                 <section>
                   <h3 className="text-xl font-semibold mb-4 text-gray-800">Getting Started</h3>
                   <div className="prose prose-gray max-w-none">

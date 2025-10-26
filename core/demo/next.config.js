@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Remove swcMinify for Next.js 14 compatibility
-  // Remove output: 'export' to enable proper SSR
+  swcMinify: true,
+  // Vercel deployment compatible settings
   images: {
     unoptimized: true
   },
