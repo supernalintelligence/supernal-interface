@@ -1,0 +1,60 @@
+name: Deploy Demo to Vercel
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'core/demo/**'
+      - 'core/src/**'
+      - 'core/package.json'
+      - '.github/workflows/deploy-demo.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'core/demo/package-lock.json'
+
+      - name: Install core dependencies
+        run: |
+          cd core
+          npm ci
+
+      - name: Build core package
+        run: |
+          cd core
+          npm run build
+
+      - name: Install demo dependencies
+        run: |
+          cd core/demo
+          npm ci
+
+      - name: Build demo
+        run: |
+          cd core/demo
+          npm run build
+        env:
+          NEXT_PUBLIC_GTM_CONTAINER_ID: ${{ secrets.GTM_CONTAINER_ID }}
+          NEXT_PUBLIC_DASHBOARD_ENABLED: false
+          NEXT_PUBLIC_ANALYTICS_ENABLED: true
+          NODE_ENV: production
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: core/demo
+          vercel-args: '--prod'
+          vercel-project-name: 'supernal-interface'

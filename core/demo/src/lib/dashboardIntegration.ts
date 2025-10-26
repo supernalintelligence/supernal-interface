@@ -17,7 +17,7 @@ export const getDashboardConfig = (): DashboardConfig => {
   const config: DashboardConfig = {
     port: parseInt(process.env.NEXT_PUBLIC_DASHBOARD_PORT || '3001'),
     host: process.env.NEXT_PUBLIC_DASHBOARD_HOST || 'localhost',
-    enabled: process.env.NEXT_PUBLIC_DASHBOARD_ENABLED !== 'false',
+    enabled: process.env.NEXT_PUBLIC_DASHBOARD_ENABLED !== 'false' && process.env.NODE_ENV !== 'production',
     fallbackUrl: process.env.NEXT_PUBLIC_DASHBOARD_FALLBACK_URL
   };
 

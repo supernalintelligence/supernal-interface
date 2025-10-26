@@ -16,7 +16,9 @@
   "env": {
     "NODE_ENV": "production",
     "TRUST_PROXY": "true",
-    "NEXT_PUBLIC_GTM_CONTAINER_ID": "@gtm_container_id"
+    "NEXT_PUBLIC_GTM_CONTAINER_ID": "@gtm_container_id",
+    "NEXT_PUBLIC_DASHBOARD_ENABLED": "false",
+    "NEXT_PUBLIC_ANALYTICS_ENABLED": "true"
   },
   "functions": {
     "pages/api/**/*.js": {

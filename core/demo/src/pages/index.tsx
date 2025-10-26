@@ -56,7 +56,7 @@ export default function LandingPage() {
 
   // Check dashboard availability when dashboard page is accessed
   useEffect(() => {
-    if (currentPage === 'dashboard') {
+    if (currentPage === 'dashboard' && getDashboardConfig().enabled) {
       setDashboardAvailable(null); // Show loading state
       checkDashboardAvailability().then(setDashboardAvailable);
     }
@@ -264,11 +264,57 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Project Dashboard</h2>
-              <p className="text-lg text-gray-600">Real-time progress tracking and requirements management</p>
+              <p className="text-lg text-gray-600">
+                {getDashboardConfig().enabled 
+                  ? "Real-time progress tracking and requirements management"
+                  : "Development-focused project management dashboard"
+                }
+              </p>
             </div>
             
             <div className="bg-white rounded-lg shadow-sm border p-6">
-              {dashboardAvailable === true && (
+              {!getDashboardConfig().enabled && (
+                <div className="text-center py-20">
+                  <div className="text-gray-500 mb-4">
+                    <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Dashboard for Development</h3>
+                    <p className="text-gray-600 mb-6">The Supernal Coding dashboard is designed for local development and project management.</p>
+                    
+                    <div className="bg-blue-50 rounded-lg p-6 max-w-2xl mx-auto">
+                      <h4 className="font-semibold text-blue-900 mb-3">Development Features</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                        <div>
+                          <h5 className="font-medium text-blue-800 mb-2">Requirements Management</h5>
+                          <ul className="text-sm text-blue-700 space-y-1">
+                            <li>• Create and track requirements</li>
+                            <li>• Validate requirement structure</li>
+                            <li>• Generate test frameworks</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h5 className="font-medium text-blue-800 mb-2">Workflow Integration</h5>
+                          <ul className="text-sm text-blue-700 space-y-1">
+                            <li>• Kanban board visualization</li>
+                            <li>• Git workflow automation</li>
+                            <li>• Progress tracking</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 text-sm text-gray-600">
+                      <p>To use the dashboard in your development environment:</p>
+                      <code className="block bg-gray-800 text-green-400 px-3 py-2 rounded text-sm mt-2">
+                        sc dashboard serve
+                      </code>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {getDashboardConfig().enabled && dashboardAvailable === true && (
                 <iframe 
                   src={dashboardUrl}
                   width="100%" 
@@ -279,7 +325,7 @@ export default function LandingPage() {
                 />
               )}
               
-              {dashboardAvailable === false && (
+              {getDashboardConfig().enabled && dashboardAvailable === false && (
                 <div className="text-center py-20">
                   <div className="text-gray-500 mb-4">
                     <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -310,7 +356,7 @@ export default function LandingPage() {
                 </div>
               )}
               
-              {dashboardAvailable === null && (
+              {getDashboardConfig().enabled && dashboardAvailable === null && (
                 <div className="text-center py-20">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                   <p className="text-gray-600">Checking dashboard availability...</p>
