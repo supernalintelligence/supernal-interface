@@ -14,7 +14,7 @@
 import { ToolMetadata } from '../decorators/Tool';
 
 // Use a global registry to avoid Jest module isolation issues
-const globalRegistry = global as any;
+const globalRegistry = (typeof global !== 'undefined' ? global : globalThis) as any;
 if (!globalRegistry.__SUPERNAL_TOOL_REGISTRY__) {
   globalRegistry.__SUPERNAL_TOOL_REGISTRY__ = new Map<string, ToolMetadata>();
 }
@@ -31,7 +31,7 @@ export class ToolRegistry {
     const toolId = `${providerName}.${methodName}`;
     this.tools.set(toolId, metadata);
     
-    if (process.env.NODE_ENV !== 'test') {
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'test') {
       console.log(`🔧 Registered Tool: ${metadata.name} (${metadata.toolType}, AI: ${metadata.aiEnabled})`);
     }
   }

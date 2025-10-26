@@ -1,8 +1,8 @@
 {
   "name": "supernal-interface",
   "version": 2,
-  "buildCommand": "cd ../ && npm ci && npm run build && cd demo && npm run build",
-  "installCommand": "cd ../ && npm ci && cd demo && npm ci",
+  "buildCommand": "cd ../ && npm ci --include=dev && npm run build && cd demo && npm run build",
+  "installCommand": "cd ../ && npm ci --include=dev && cd demo && npm ci",
   "env": {
     "NODE_ENV": "production",
     "TRUST_PROXY": "true",
