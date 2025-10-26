@@ -23,6 +23,9 @@ let demoState = {
   status: 'inactive',
   theme: 'light' as 'light' | 'dark' | 'auto',
   
+  // Visual feedback
+  highlightedWidget: null as string | null,
+  
   // Chat messages (for chat interface, not a widget)
   messages: [] as Array<{id: string, text: string, type: 'user' | 'ai' | 'system', timestamp: string}>
 };
@@ -35,10 +38,25 @@ export function setStateChangeCallback(callback: (newState: any) => void) {
 }
 
 function updateState(changes: Partial<typeof demoState>) {
+  console.log(`🔄 UIControls.updateState: Changes:`, changes);
+  console.log(`🔄 UIControls.updateState: Old state:`, demoState);
   demoState = { ...demoState, ...changes };
+  console.log(`🔄 UIControls.updateState: New state:`, demoState);
   if (stateChangeCallback) {
+    console.log(`🔄 UIControls.updateState: Calling React callback`);
     stateChangeCallback(demoState);
+  } else {
+    console.log(`🔄 UIControls.updateState: No React callback set`);
   }
+}
+
+// Visual feedback helper
+function highlightWidget(widgetId: string) {
+  updateState({ highlightedWidget: widgetId });
+  // Clear highlight after 2 seconds
+  setTimeout(() => {
+    updateState({ highlightedWidget: null });
+  }, 2000);
 }
 
 @ToolProvider({
@@ -56,6 +74,7 @@ export class UIControls {
     examples: ['open menu', 'show menu', 'display menu']
   })
   async openMainMenu(): Promise<{ success: boolean; message: string }> {
+    highlightWidget('open-menu-button');
     updateState({ menuOpen: true });
     return { success: true, message: 'Main menu opened' };
   }
@@ -68,6 +87,7 @@ export class UIControls {
     examples: ['close menu', 'hide menu', 'dismiss menu']
   })
   async closeMainMenu(): Promise<{ success: boolean; message: string }> {
+    highlightWidget('close-menu-button');
     updateState({ menuOpen: false });
     return { success: true, message: 'Main menu closed' };
   }
@@ -82,6 +102,7 @@ export class UIControls {
     examples: ['toggle feature', 'enable feature', 'disable feature']
   })
   async toggleFeature(enabled?: boolean): Promise<{ success: boolean; message: string }> {
+    highlightWidget('feature-toggle-widget');
     const newState = enabled !== undefined ? enabled : !demoState.featureEnabled;
     updateState({ featureEnabled: newState });
     return { success: true, message: `Feature ${newState ? 'enabled' : 'disabled'}` };
@@ -95,6 +116,7 @@ export class UIControls {
     examples: ['toggle notifications', 'enable notifications', 'disable notifications']
   })
   async toggleNotifications(enabled?: boolean): Promise<{ success: boolean; message: string }> {
+    highlightWidget('notifications-toggle-widget');
     const newState = enabled !== undefined ? enabled : !demoState.notificationsEnabled;
     updateState({ notificationsEnabled: newState });
     return { success: true, message: `Notifications ${newState ? 'enabled' : 'disabled'}` };
@@ -110,6 +132,7 @@ export class UIControls {
     examples: ['set priority high', 'priority medium', 'low priority', 'change priority']
   })
   async setPriority(priority: 'high' | 'medium' | 'low'): Promise<{ success: boolean; message: string }> {
+    highlightWidget('priority-radio-widget');
     updateState({ priority });
     return { success: true, message: `Priority set to ${priority}` };
   }
@@ -124,7 +147,10 @@ export class UIControls {
     examples: ['set status active', 'change status', 'status inactive', 'status pending']
   })
   async setStatus(status: string): Promise<{ success: boolean; message: string }> {
+    console.log(`🎛️ UIControls.setStatus called with:`, status);
+    highlightWidget('status-select-widget');
     updateState({ status });
+    console.log(`🎛️ UIControls.setStatus: State updated to:`, status);
     return { success: true, message: `Status changed to ${status}` };
   }
 
@@ -136,7 +162,10 @@ export class UIControls {
     examples: ['set theme dark', 'light theme', 'auto theme', 'change theme']
   })
   async setTheme(theme: 'light' | 'dark' | 'auto'): Promise<{ success: boolean; message: string }> {
+    console.log(`🎨 UIControls.setTheme called with:`, theme);
+    highlightWidget('theme-select-widget');
     updateState({ theme });
+    console.log(`🎨 UIControls.setTheme: State updated to:`, theme);
     // Apply theme to document for visual feedback
     if (typeof document !== 'undefined') {
       document.documentElement.setAttribute('data-theme', theme);
@@ -154,6 +183,7 @@ export class UIControls {
     examples: ['submit form', 'send form', 'submit name']
   })
   async submitForm(name: string): Promise<{ success: boolean; message: string }> {
+    highlightWidget('form-submit-widget');
     return { success: true, message: `Form submitted with name: ${name}` };
   }
 }

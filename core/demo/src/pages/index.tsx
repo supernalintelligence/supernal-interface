@@ -12,7 +12,8 @@ import { ToolRegistry } from '@supernal-interface/core/browser';
 import { InteractiveWidgets } from '../components/InteractiveWidgets';
 import { Header } from '../components/Header';
 import { ChatBubble } from '../components/ChatBubble';
-import { ErrorBoundary } from '../components/ErrorBoundary';
+import { ToolTestResults } from '../components/ToolTestResults';
+import { QuickToolTest } from '../lib/QuickToolTest';
 
 interface Message {
   id: string;
@@ -22,40 +23,19 @@ interface Message {
 }
 
 export default function LandingPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: '👋 Welcome to @supernal-interface Demo!',
-      type: 'system',
-      timestamp: new Date().toISOString()
-    },
-    {
-      id: '2', 
-      text: 'This is NOT real AI - it\'s a demo showing how AI would interact with @Tool decorated methods.',
-      type: 'system',
-      timestamp: new Date().toISOString()
-    },
-    {
-      id: '3',
-      text: '🎮 Try these commands to see tool execution:\n• "toggle notifications"\n• "set theme dark"\n• "open menu"\n• "set priority high"',
-      type: 'system', 
-      timestamp: new Date().toISOString()
-    },
-    {
-      id: '4',
-      text: 'Watch how each command finds and executes the corresponding @Tool method, then updates the widgets above! 🔧',
-      type: 'system',
-      timestamp: new Date().toISOString()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   
   const [aiInterface] = useState(() => new DemoAIInterface());
   const [availableTools, setAvailableTools] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState('home');
+  const [quickTestResults, setQuickTestResults] = useState<any>(null);
 
-  // Initialize the UI controls on mount
+  // Initialize the UI controls and messages on mount
   useEffect(() => {
     initializeUIControls();
+    
+    // Initialize messages client-side to avoid hydration issues
+    setMessages(getInitialMessages());
     
     // Get available tools for the tool list - group by category
     const tools = Array.from(ToolRegistry.getAllTools().values())
@@ -83,39 +63,24 @@ export default function LandingPage() {
   const handleAICommand = async (input: string) => {
     if (!input.trim()) return;
     
-    console.log('🎯 handleAICommand: Starting execution for:', input);
-    console.log('🎯 handleAICommand: Page state before execution - DOM intact?', document.body.innerHTML.length > 1000);
-    
     addMessage(input, 'user');
     
     try {
-      console.log('🎯 handleAICommand: Finding tools for command...');
       const command = aiInterface.findToolsForCommand(input);
-      console.log('🎯 handleAICommand: Found command:', command);
-      
-      console.log('🎯 handleAICommand: About to execute command...');
-      console.log('🎯 handleAICommand: Page state before executeCommand - DOM intact?', document.body.innerHTML.length > 1000);
-      
       const response = await aiInterface.executeCommand(command, true);
-      
-      console.log('🎯 handleAICommand: Command executed, response:', response);
-      console.log('🎯 handleAICommand: Page state after executeCommand - DOM intact?', document.body.innerHTML.length > 1000);
-      console.log('🎯 handleAICommand: Current body content length:', document.body.innerHTML.length);
-      
       addMessage(response.message, 'ai');
-      
-      console.log('🎯 handleAICommand: Message added, final page state - DOM intact?', document.body.innerHTML.length > 1000);
     } catch (error) {
-      console.error('🚨 handleAICommand: Error during execution:', error);
       addMessage(`Error: ${error instanceof Error ? error.message : String(error)}`, 'ai');
     }
   };
 
   const executeToolDirectly = async (tool: any) => {
     try {
-      const command = { query: tool.name, tool, confidence: 1, requiresApproval: false };
+      // Use the first example as the query to ensure proper parameter extraction
+      const query = tool.examples[0] || tool.name;
+      const command = aiInterface.findToolsForCommand(query);
       const response = await aiInterface.executeCommand(command, true);
-      addMessage(`🔧 Executed "${tool.name}": ${response.message}`, 'system');
+      addMessage(`🔧 Executed "${tool.name}" via "${query}": ${response.message}`, 'system');
     } catch (error) {
       addMessage(`❌ Failed to execute "${tool.name}": ${error instanceof Error ? error.message : String(error)}`, 'system');
     }
@@ -125,33 +90,52 @@ export default function LandingPage() {
     addMessage(`🎮 Widget "${widgetType}" ${action}: ${result.message}`, 'system');
   };
 
+  const getInitialMessages = (): Message[] => [
+    {
+      id: '1',
+      text: '👋 Welcome to @supernal-interface Demo!',
+      type: 'system',
+      timestamp: new Date().toISOString()
+    },
+    {
+      id: '2', 
+      text: 'This is NOT real AI - it\'s a demo showing how AI would interact with @Tool decorated methods.',
+      type: 'system',
+      timestamp: new Date().toISOString()
+    },
+    {
+      id: '3',
+      text: '🎮 Try these commands to see tool execution:\n• "toggle notifications"\n• "set theme dark"\n• "open menu"\n• "set priority high"',
+      type: 'system', 
+      timestamp: new Date().toISOString()
+    },
+    {
+      id: '4',
+      text: 'Watch how each command finds and executes the corresponding @Tool method, then updates the widgets above! 🔧',
+      type: 'system',
+      timestamp: new Date().toISOString()
+    }
+  ];
+
   const handleClearChat = () => {
-    setMessages([
-      {
-        id: '1',
-        text: '👋 Welcome to @supernal-interface Demo!',
-        type: 'system',
-        timestamp: new Date().toISOString()
-      },
-      {
-        id: '2', 
-        text: 'This is NOT real AI - it\'s a demo showing how AI would interact with @Tool decorated methods.',
-        type: 'system',
-        timestamp: new Date().toISOString()
-      },
-      {
-        id: '3',
-        text: '🎮 Try these commands to see tool execution:\n• "toggle notifications"\n• "set theme dark"\n• "open menu"\n• "set priority high"',
-        type: 'system', 
-        timestamp: new Date().toISOString()
-      },
-      {
-        id: '4',
-        text: 'Watch how each command finds and executes the corresponding @Tool method, then updates the widgets above! 🔧',
-        type: 'system',
-        timestamp: new Date().toISOString()
+    setMessages(getInitialMessages());
+  };
+
+  const runQuickTest = async () => {
+    const quickTest = new QuickToolTest();
+    addMessage('🧪 Running quick tool validation...', 'system');
+    try {
+      const results = await quickTest.testParameterBasedTools();
+      setQuickTestResults(results);
+      addMessage(`🧪 Quick Test Results: ${results.passed}/${results.passed + results.failed} passed (${((results.passed / (results.passed + results.failed)) * 100).toFixed(1)}%)`, 'system');
+      
+      if (results.failed > 0) {
+        const failedTests = results.results.filter(r => !r.passed).map(r => r.name);
+        addMessage(`❌ Failed tests: ${failedTests.join(', ')}`, 'system');
       }
-    ]);
+    } catch (error) {
+      addMessage(`❌ Quick test failed: ${error instanceof Error ? error.message : String(error)}`, 'system');
+    }
   };
 
   return (
@@ -174,14 +158,39 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
           
           {/* Widget Examples - Component Zoo */}
-          <ErrorBoundary fallback={
-            <div className="p-4 bg-red-100 border border-red-400 rounded">
-              <h3 className="text-red-800 font-bold">🚨 InteractiveWidgets Crashed</h3>
-              <p className="text-red-700 text-sm">This is likely the "toggle notifications" bug!</p>
+          <InteractiveWidgets onWidgetInteraction={handleWidgetInteraction} />
+
+          {/* Quick Test Button */}
+          <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">⚡ Quick Tool Validation</h3>
+                <p className="text-sm text-gray-600">Test parameter-based tools that were previously failing</p>
+              </div>
+              <button
+                onClick={runQuickTest}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors font-medium"
+              >
+                Run Quick Test
+              </button>
             </div>
-          }>
-            <InteractiveWidgets onWidgetInteraction={handleWidgetInteraction} />
-          </ErrorBoundary>
+            {quickTestResults && (
+              <div className="mt-4 p-3 bg-gray-50 rounded">
+                <div className="text-sm">
+                  <span className="font-medium">Results: </span>
+                  <span className="text-green-600">{quickTestResults.passed} passed</span>
+                  {quickTestResults.failed > 0 && (
+                    <span className="text-red-600">, {quickTestResults.failed} failed</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Tool Test Results */}
+          <ToolTestResults onTestComplete={(summary) => {
+            addMessage(`🧪 Test Results: ${summary.passedTests}/${summary.totalTests} passed (${summary.passRate.toFixed(1)}%)`, 'system');
+          }} />
 
           {/* Available Tool Methods - 3 Column Layout */}
           <div className="bg-white rounded-lg shadow p-6 mb-6">

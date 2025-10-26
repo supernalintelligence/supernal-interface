@@ -6,7 +6,6 @@
 
 import { ToolRegistry, ToolMetadata } from '@supernal-interface/core/browser';
 import { getUIControls } from './UIControls';
-import { WidgetHighlighter } from './WidgetHighlighter';
 
 export interface AICommand {
   query: string;
@@ -146,15 +145,10 @@ export class DemoAIInterface {
       }
     }
     
-    // Extract parameters from the query
-    const { parameters, parsedIntent } = this.extractParameters(query, bestTool);
-
     // Log the matching process for transparency
     if (bestTool) {
       console.log(`🎯 Tool Match: ${bestTool.name} (${Math.round((Math.min(bestScore / 10, 1)) * 100)}% confidence)`);
       console.log(`   Score: ${bestScore}/10`);
-      console.log(`   Parameters:`, parameters);
-      console.log(`   Parsed Intent:`, parsedIntent);
       console.log(`   Tool Schema:`, {
         testId: bestTool.testId,
         elementType: bestTool.elementType,
@@ -170,6 +164,9 @@ export class DemoAIInterface {
         .flatMap(t => t.examples));
     }
     
+    // Extract parameters from the query
+    const { parameters, parsedIntent } = this.extractParameters(query, bestTool);
+    
     return {
       query,
       tool: bestTool,
@@ -180,13 +177,11 @@ export class DemoAIInterface {
     };
   }
   
+  
   /**
    * Execute a tool command
    */
   async executeCommand(command: AICommand, approved: boolean = false): Promise<AIResponse> {
-    console.log('🔧 AIInterface.executeCommand: Starting execution');
-    console.log('🔧 AIInterface.executeCommand: DOM length before:', document.body.innerHTML.length);
-    
     const timestamp = new Date().toISOString();
     
     if (!command.tool) {
@@ -214,14 +209,8 @@ export class DemoAIInterface {
     }
     
     try {
-      console.log('🔧 AIInterface.executeCommand: About to call executeToolMethod');
-      console.log('🔧 AIInterface.executeCommand: DOM length before executeToolMethod:', document.body.innerHTML.length);
-      
-      // Execute the tool by calling the actual method with parameters
+      // Execute the tool by calling the actual method
       const result = await this.executeToolMethod(command.tool, command.parameters || []);
-      
-      console.log('🔧 AIInterface.executeCommand: executeToolMethod completed, result:', result);
-      console.log('🔧 AIInterface.executeCommand: DOM length after executeToolMethod:', document.body.innerHTML.length);
       
       return {
         success: result.success,
@@ -230,8 +219,6 @@ export class DemoAIInterface {
         timestamp
       };
     } catch (error) {
-      console.error('🚨 AIInterface.executeCommand: Error in executeToolMethod:', error);
-      console.log('🔧 AIInterface.executeCommand: DOM length after error:', document.body.innerHTML.length);
       return {
         success: false,
         message: `❌ Execution failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -246,20 +233,6 @@ export class DemoAIInterface {
    */
   private async executeToolMethod(tool: ToolMetadata, parameters: any[] = []): Promise<{ success: boolean; message: string }> {
     console.log(`🔧 AIInterface: Executing @Tool method: ${tool.methodName}() with parameters:`, parameters);
-    
-    // Show visual highlighting for the widget being affected
-    const highlighter = WidgetHighlighter.getInstance();
-    let testId = WidgetHighlighter.getTestIdForTool(tool.methodName);
-    
-    // Update testId for priority based on parameter
-    if (tool.methodName === 'setPriority' && parameters.length > 0) {
-      testId = `priority-${parameters[0]}-widget`;
-    }
-    
-    const action = WidgetHighlighter.getActionForTool(tool.methodName);
-    
-    // Start highlighting (don't await - let it run in parallel)
-    highlighter.highlightWidget({ testId, action, duration: 3000 });
     
     try {
       const uiControls = getUIControls();
@@ -276,17 +249,7 @@ export class DemoAIInterface {
         case 'toggleFeature':
           return await uiControls.toggleFeature(parameters[0]);
         case 'toggleNotifications':
-          console.log('🔔 AIInterface.executeToolMethod: About to call toggleNotifications');
-          console.log('🔔 AIInterface.executeToolMethod: DOM length before toggleNotifications:', document.body.innerHTML.length);
-          console.log('🔔 AIInterface.executeToolMethod: Parameters:', parameters);
-          
-          const notificationResult = await uiControls.toggleNotifications(parameters[0]);
-          
-          console.log('🔔 AIInterface.executeToolMethod: toggleNotifications completed');
-          console.log('🔔 AIInterface.executeToolMethod: DOM length after toggleNotifications:', document.body.innerHTML.length);
-          console.log('🔔 AIInterface.executeToolMethod: Result:', notificationResult);
-          
-          return notificationResult;
+          return await uiControls.toggleNotifications(parameters[0]);
         
         // Radio widget
         case 'setPriority':
