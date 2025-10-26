@@ -30,25 +30,42 @@ export interface ToolConfig {
   frequency?: ToolFrequency;
   complexity?: ToolComplexity;
   
-  // NEW: AI Interface enhancements
-  testId?: string;                    // UI element identifier
-  uiSelector?: string;                // CSS selector
-  examples?: string[];                // Natural language examples
-  aiDescription?: string;             // AI-optimized description
-  executionContext?: 'ui' | 'api' | 'both';  // Where this tool runs
-  mockData?: any;                     // Mock data for testing
+  // IMPROVED: Better naming conventions (replaces testId)
+  toolId?: string;                     // Unique tool identifier (primary)
+  elementId?: string;                  // DOM element ID (for UI tools)
+  selector?: string;                   // CSS selector (for UI tools)
   
-  // NEW: AI Control vs Testing distinction - SAFE DEFAULTS
+  // For standalone functions (when no class context)
+  providerName?: string;               // Provider name for standalone functions
+  
+  // AI Interface enhancements
+  examples?: string[];                 // Natural language examples
+  aiDescription?: string;              // AI-optimized description
+  executionContext?: 'ui' | 'api' | 'both';  // Where this tool runs
+  mockData?: any;                      // Mock data for testing
+  
+  // AI Control vs Testing distinction - SAFE DEFAULTS
   toolType?: 'test-only' | 'ai-safe' | 'ai-restricted' | 'ai-dangerous';
-  aiEnabled?: boolean;                // Default: false (test-only)
-  requiresApproval?: boolean;         // Requires human approval before AI execution
+  aiEnabled?: boolean;                 // Default: false (test-only)
+  requiresApproval?: boolean;          // Requires human approval before AI execution
   dangerLevel?: 'safe' | 'moderate' | 'dangerous' | 'destructive';
   
-  // NEW: Testing integration (from testing-tools)
-  generateSimulation?: boolean;       // Auto-generate simulation methods
-  generateStories?: boolean;          // Auto-generate test stories
+  // Testing integration
+  generateSimulation?: boolean;        // Auto-generate simulation methods
+  generateStories?: boolean;           // Auto-generate test stories
   elementType?: 'button' | 'input' | 'select' | 'textarea' | 'link' | 'div';
   actionType?: 'click' | 'type' | 'select' | 'navigate' | 'hover' | 'scroll';
+  
+  // Origin tracking (where tool is available)
+  origin?: {
+    path?: string;                     // UI path where tool is available
+    elements?: string[];               // CSS selectors where tool works
+    modal?: string;                    // Modal/dialog context
+  };
+  
+  // DEPRECATED (for backward compatibility)
+  testId?: string;                     // @deprecated - use toolId instead
+  uiSelector?: string;                 // @deprecated - use selector instead
 }
 
 export interface ToolMetadata {
@@ -68,42 +85,157 @@ export interface ToolMetadata {
   frequency: ToolFrequency;
   complexity: ToolComplexity;
   
-  // NEW: AI Interface enhancements
-  testId: string;
-  uiSelector?: string;
+  // IMPROVED: Better identifiers
+  toolId: string;                      // Primary tool identifier
+  elementId?: string;                  // DOM element ID
+  selector?: string;                   // CSS selector
+  
+  // Provider information (supports standalone functions)
+  providerClass?: string;              // Class name (for class methods)
+  providerName?: string;               // Provider name (for standalone functions)
+  isStandalone: boolean;               // Whether this is a standalone function
+  
+  // AI Interface enhancements
   examples: string[];
   aiDescription: string;
   executionContext: 'ui' | 'api' | 'both';
   mockData?: any;
   
-  // NEW: AI Control vs Testing distinction
+  // AI Control vs Testing distinction
   toolType: 'test-only' | 'ai-safe' | 'ai-restricted' | 'ai-dangerous';
   aiEnabled: boolean;
   requiresApproval: boolean;
   dangerLevel: 'safe' | 'moderate' | 'dangerous' | 'destructive';
   
-  // NEW: Testing integration
+  // Testing integration
   generateSimulation: boolean;
   generateStories: boolean;
   elementType?: 'button' | 'input' | 'select' | 'textarea' | 'link' | 'div';
   actionType?: 'click' | 'type' | 'select' | 'navigate' | 'hover' | 'scroll';
   
-  // Provider information
-  providerClass: string;
+  // Origin tracking
+  origin?: {
+    path?: string;
+    elements?: string[];
+    modal?: string;
+  };
+  
+  // DEPRECATED (for backward compatibility)
+  testId?: string;                     // @deprecated - use toolId
+  uiSelector?: string;                 // @deprecated - use selector
 }
 
+// Global registry for standalone function tools
+const standaloneToolRegistry = new Map<string, ToolMetadata>();
+
 /**
- * Tool decorator - marks methods for automatic tool generation
+ * Tool decorator - supports both class methods and standalone functions
  * 
  * Since JSDoc extraction at runtime is impossible (comments are stripped during compilation),
  * this decorator relies on method name inference and explicit configuration.
  * 
  * @param config Optional configuration to override defaults
  */
-export function Tool(config: ToolConfig = {}): MethodDecorator {
-  return function(target: any, propertyKey: string | symbol, descriptor?: PropertyDescriptor) {
+export function Tool(config: ToolConfig = {}) {
+  return function(target: any, propertyKey?: string | symbol, descriptor?: PropertyDescriptor) {
+    // Handle standalone function case
+    if (typeof target === 'function' && !propertyKey) {
+      return decorateStandaloneFunction(target, config);
+    }
+    
+    // Handle class method case
+    if (propertyKey && descriptor) {
+      return decorateClassMethod(target, propertyKey, descriptor, config);
+    }
+    
+    throw new Error('Tool decorator can only be applied to class methods or standalone functions');
+  };
+}
+
+/**
+ * Decorate a standalone function
+ */
+function decorateStandaloneFunction(func: Function, config: ToolConfig) {
+  const functionName = func.name || 'anonymous';
+  const providerName = config.providerName || 'StandaloneFunctions';
+  
+  const toolMetadata: ToolMetadata = {
+    methodName: functionName,
+    name: config.name || formatMethodName(functionName),
+    description: config.description || formatMethodName(functionName),
+    category: config.category || inferCategoryFromMethodName(functionName),
+    inputSchema: config.inputSchema || generateBasicInputSchema(),
+    outputSchema: config.outputSchema || generateBasicOutputSchema(),
+    returnType: config.returnType || 'json',
+    supportsStreaming: config.supportsStreaming || false,
+    tags: config.tags || [providerName.toLowerCase()],
+    keywords: config.keywords || [functionName],
+    useCases: config.useCases || generateUseCases(functionName),
+    permissions: config.permissions || inferPermissions(functionName),
+    frequency: config.frequency || inferFrequency(functionName),
+    complexity: config.complexity || ToolComplexity.SIMPLE,
+    
+    // IMPROVED: Better identifiers
+    toolId: config.toolId || generateToolId(providerName, functionName),
+    elementId: config.elementId,
+    selector: config.selector,
+    
+    // Provider information
+    providerName: providerName,
+    isStandalone: true,
+    
+    // AI Interface enhancements
+    examples: config.examples || generateNaturalLanguageExamples(functionName),
+    aiDescription: config.aiDescription || generateAIDescription(functionName, config.description),
+    executionContext: config.executionContext || inferExecutionContext(functionName),
+    mockData: config.mockData,
+    
+    // AI Control vs Testing distinction - SAFE DEFAULTS
+    toolType: config.toolType || inferToolType(functionName),
+    aiEnabled: config.aiEnabled || false,
+    dangerLevel: config.dangerLevel || inferDangerLevel(functionName),
+    requiresApproval: config.requiresApproval || shouldRequireApproval(functionName, config.dangerLevel),
+    
+    // Testing integration
+    generateSimulation: config.generateSimulation ?? true,
+    generateStories: config.generateStories ?? true,
+    elementType: config.elementType || inferElementType(functionName),
+    actionType: config.actionType || inferActionType(functionName),
+    
+    // Origin tracking
+    origin: config.origin,
+    
+    // DEPRECATED (backward compatibility)
+    testId: config.testId || config.toolId || generateToolId(providerName, functionName),
+    uiSelector: config.uiSelector || config.selector
+  };
+  
+  // Register standalone function
+  standaloneToolRegistry.set(toolMetadata.toolId, toolMetadata);
+  
+  // Register with ToolRegistry if available
+  try {
+    const { ToolRegistry } = require('../registry/ToolRegistry');
+    ToolRegistry.registerTool(providerName, functionName, toolMetadata);
+  } catch (error) {
+    console.error('Failed to register standalone tool:', error);
+  }
+  
+  DEBUG && console.log(`[Tool] Registered standalone function: ${toolMetadata.name} (${toolMetadata.category})`);
+  
+  // Return enhanced function with metadata
+  const enhancedFunction = func as any;
+  enhancedFunction.__toolMetadata__ = toolMetadata;
+  return enhancedFunction;
+}
+
+/**
+ * Decorate a class method
+ */
+function decorateClassMethod(target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor, config: ToolConfig) {
     // Ensure propertyKey is a string for processing
     const methodName = typeof propertyKey === 'string' ? propertyKey : String(propertyKey);
+    const className = target.constructor.name;
     
     // Generate enhanced tool metadata with AI safety controls
     const toolMetadata: ToolMetadata = {
@@ -114,37 +246,48 @@ export function Tool(config: ToolConfig = {}): MethodDecorator {
       category: config.category || inferCategoryFromMethodName(methodName),
       inputSchema: config.inputSchema || generateBasicInputSchema(),
       outputSchema: config.outputSchema || generateBasicOutputSchema(),
-      returnType: config.returnType || 'markdown',
+      returnType: config.returnType || 'json',
       supportsStreaming: config.supportsStreaming || false,
-      tags: config.tags || [target.constructor.name.toLowerCase().replace('manager', '')],
+      tags: config.tags || [className.toLowerCase().replace('manager', '')],
       keywords: config.keywords || [methodName],
       useCases: config.useCases || generateUseCases(methodName),
       permissions: config.permissions || inferPermissions(methodName),
       frequency: config.frequency || inferFrequency(methodName),
       complexity: config.complexity || ToolComplexity.SIMPLE,
       
-      // NEW: AI Interface enhancements
-      testId: config.testId || generateTestId(target.constructor.name, methodName),
-      uiSelector: config.uiSelector,
+      // IMPROVED: Better identifiers
+      toolId: config.toolId || generateToolId(className, methodName),
+      elementId: config.elementId,
+      selector: config.selector,
+      
+      // Provider information
+      providerClass: className,
+      isStandalone: false,
+      
+      // AI Interface enhancements
       examples: config.examples || generateNaturalLanguageExamples(methodName),
       aiDescription: config.aiDescription || generateAIDescription(methodName, config.description),
       executionContext: config.executionContext || inferExecutionContext(methodName),
       mockData: config.mockData,
       
-      // NEW: AI Control vs Testing distinction - SAFE DEFAULTS
+      // AI Control vs Testing distinction - SAFE DEFAULTS
       toolType: config.toolType || inferToolType(methodName),
       aiEnabled: config.aiEnabled || false,  // Default: test-only
       dangerLevel: config.dangerLevel || inferDangerLevel(methodName),
       requiresApproval: config.requiresApproval || shouldRequireApproval(methodName, config.dangerLevel),
       
-      // NEW: Testing integration - DEFAULTS
+      // Testing integration - DEFAULTS
       generateSimulation: config.generateSimulation ?? true,
       generateStories: config.generateStories ?? true,
       elementType: config.elementType || inferElementType(methodName),
       actionType: config.actionType || inferActionType(methodName),
       
-      // Provider information
-      providerClass: target.constructor.name
+      // Origin tracking
+      origin: config.origin,
+      
+      // DEPRECATED (backward compatibility)
+      testId: config.testId || config.toolId || generateToolId(className, methodName),
+      uiSelector: config.uiSelector || config.selector
     };
     
     // Register tool metadata on the class prototype (for supernal-command compatibility)
@@ -313,8 +456,8 @@ function formatMethodName(methodName: string | symbol): string {
 
 // NEW: AI Interface helper functions
 
-function generateTestId(className: string, methodName: string): string {
-  return `${className.toLowerCase()}-${methodName.toLowerCase()}`;
+function generateToolId(providerName: string, methodName: string): string {
+  return `${providerName.toLowerCase()}-${methodName.toLowerCase()}`;
 }
 
 function generateNaturalLanguageExamples(methodName: string): string[] {
@@ -525,4 +668,18 @@ function inferActionType(methodName: string): 'click' | 'type' | 'select' | 'nav
   
   // Default to click for most interactions
   return 'click';
+}
+
+/**
+ * Get all standalone function tools
+ */
+export function getStandaloneTools(): ToolMetadata[] {
+  return Array.from(standaloneToolRegistry.values());
+}
+
+/**
+ * Get standalone tool by ID
+ */
+export function getStandaloneTool(toolId: string): ToolMetadata | undefined {
+  return standaloneToolRegistry.get(toolId);
 }
