@@ -29,6 +29,12 @@ export default function LandingPage() {
   const [availableTools, setAvailableTools] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState('home');
   const [quickTestResults, setQuickTestResults] = useState<any>(null);
+  const [quickTestProgress, setQuickTestProgress] = useState<{
+    current: number;
+    total: number;
+    testName: string;
+    isRunning: boolean;
+  } | null>(null);
 
   // Initialize the UI controls and messages on mount
   useEffect(() => {
@@ -123,17 +129,33 @@ export default function LandingPage() {
 
   const runQuickTest = async () => {
     const quickTest = new QuickToolTest();
+    setQuickTestProgress({ current: 0, total: 8, testName: 'Initializing...', isRunning: true });
+    setQuickTestResults(null);
     addMessage('🧪 Running quick tool validation...', 'system');
+    
     try {
-      const results = await quickTest.testParameterBasedTools();
+      const results = await quickTest.testParameterBasedTools(
+        (current, total, testName, result) => {
+          setQuickTestProgress({ current, total, testName, isRunning: true });
+          if (result) {
+            addMessage(`${result.passed ? '✅' : '❌'} ${testName}: ${result.passed ? 'PASS' : 'FAIL'}`, 'system');
+          }
+        },
+        1200 // 1.2 second delay between tests for better visibility
+      );
+      
+      setQuickTestProgress(null);
       setQuickTestResults(results);
-      addMessage(`🧪 Quick Test Results: ${results.passed}/${results.passed + results.failed} passed (${((results.passed / (results.passed + results.failed)) * 100).toFixed(1)}%)`, 'system');
+      addMessage(`🧪 Quick Test Complete: ${results.passed}/${results.passed + results.failed} passed (${((results.passed / (results.passed + results.failed)) * 100).toFixed(1)}%)`, 'system');
       
       if (results.failed > 0) {
         const failedTests = results.results.filter(r => !r.passed).map(r => r.name);
         addMessage(`❌ Failed tests: ${failedTests.join(', ')}`, 'system');
+      } else {
+        addMessage('🎉 All parameter-based tools are working correctly!', 'system');
       }
     } catch (error) {
+      setQuickTestProgress(null);
       addMessage(`❌ Quick test failed: ${error instanceof Error ? error.message : String(error)}`, 'system');
     }
   };
@@ -157,10 +179,12 @@ export default function LandingPage() {
 
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
           
-          {/* Widget Examples - Component Zoo */}
-          <InteractiveWidgets onWidgetInteraction={handleWidgetInteraction} />
+          {currentPage === 'home' && (
+            <>
+              {/* Widget Examples - Component Zoo */}
+              <InteractiveWidgets onWidgetInteraction={handleWidgetInteraction} />
 
-          {/* Quick Test Button */}
+              {/* Quick Test Button */}
           <div className="bg-white rounded-lg shadow p-4 mb-6">
             <div className="flex items-center justify-between">
               <div>
@@ -169,12 +193,37 @@ export default function LandingPage() {
               </div>
               <button
                 onClick={runQuickTest}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors font-medium"
+                disabled={quickTestProgress?.isRunning}
+                className={`px-4 py-2 text-white rounded transition-colors font-medium ${
+                  quickTestProgress?.isRunning 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-green-600 hover:bg-green-700'
+                }`}
               >
-                Run Quick Test
+                {quickTestProgress?.isRunning ? 'Testing...' : 'Run Quick Test'}
               </button>
             </div>
-            {quickTestResults && (
+            
+            {quickTestProgress && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-blue-800">
+                    Testing: {quickTestProgress.testName}
+                  </span>
+                  <span className="text-sm text-blue-600">
+                    {quickTestProgress.current}/{quickTestProgress.total}
+                  </span>
+                </div>
+                <div className="w-full bg-blue-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(quickTestProgress.current / quickTestProgress.total) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+            
+            {quickTestResults && !quickTestProgress && (
               <div className="mt-4 p-3 bg-gray-50 rounded">
                 <div className="text-sm">
                   <span className="font-medium">Results: </span>
@@ -182,6 +231,9 @@ export default function LandingPage() {
                   {quickTestResults.failed > 0 && (
                     <span className="text-red-600">, {quickTestResults.failed} failed</span>
                   )}
+                  <span className="ml-2 text-gray-600">
+                    ({((quickTestResults.passed / (quickTestResults.passed + quickTestResults.failed)) * 100).toFixed(1)}% pass rate)
+                  </span>
                 </div>
               </div>
             )}
@@ -242,47 +294,328 @@ export default function LandingPage() {
           </div>
 
 
-          {/* How To Documentation */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">📚 How It Works</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">1. Widget Examples</h4>
-                <p className="text-sm text-gray-600">
-                  Standard UI components (buttons, checkboxes, forms) decorated with <code className="bg-gray-100 px-1 rounded">@Tool</code> 
-                  decorators. Each interaction executes the corresponding method immediately.
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">2. Tool Registry</h4>
-                <p className="text-sm text-gray-600">
-                  All <code className="bg-gray-100 px-1 rounded">@Tool</code> decorated methods are automatically 
-                  registered and can be executed directly or via AI commands. Click any tool to execute it.
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">3. AI Interface</h4>
-                <p className="text-sm text-gray-600">
-                  Natural language commands are matched to registered tools using examples and descriptions. 
-                  The AI can execute any tool marked as <code className="bg-gray-100 px-1 rounded">aiEnabled: true</code>.
-                </p>
-              </div>
-            </div>
+              {/* How It Works - Quick Overview */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">📚 How It Works</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">1. Widget Examples</h4>
+                    <p className="text-sm text-gray-600">
+                      Standard UI components (buttons, checkboxes, forms) decorated with <code className="bg-gray-100 px-1 rounded">@Tool</code> 
+                      decorators. Each interaction executes the corresponding method immediately.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">2. Tool Registry</h4>
+                    <p className="text-sm text-gray-600">
+                      All <code className="bg-gray-100 px-1 rounded">@Tool</code> decorated methods are automatically 
+                      registered and can be executed directly or via AI commands. Click any tool to execute it.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">3. AI Interface</h4>
+                    <p className="text-sm text-gray-600">
+                      Natural language commands are matched to registered tools using examples and descriptions. 
+                      The AI can execute any tool marked as <code className="bg-gray-100 px-1 rounded">aiEnabled: true</code>.
+                    </p>
+                  </div>
+                </div>
 
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
-              <h4 className="font-medium text-blue-800 mb-2">🚀 Key Features</h4>
-              <ul className="text-sm text-blue-700 space-y-1">
-                <li>• <strong>Automatic Registration:</strong> @Tool decorators auto-register methods</li>
-                <li>• <strong>AI-Safe Defaults:</strong> Tools are test-only by default, must opt-in to AI control</li>
-                <li>• <strong>Danger Levels:</strong> Safe, moderate, destructive with approval requirements</li>
-                <li>• <strong>Natural Language:</strong> AI matches commands to tools using examples</li>
-                <li>• <strong>Direct Execution:</strong> No DOM simulation, direct method calls</li>
-              </ul>
+                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
+                  <h4 className="font-medium text-blue-800 mb-2">🚀 Key Features</h4>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    <li>• <strong>Automatic Registration:</strong> @Tool decorators auto-register methods</li>
+                    <li>• <strong>AI-Safe Defaults:</strong> Tools are test-only by default, must opt-in to AI control</li>
+                    <li>• <strong>Danger Levels:</strong> Safe, moderate, destructive with approval requirements</li>
+                    <li>• <strong>Natural Language:</strong> AI matches commands to tools using examples</li>
+                    <li>• <strong>Direct Execution:</strong> No DOM simulation, direct method calls</li>
+                  </ul>
+                </div>
+              </div>
+            </>
+          )}
+
+          {currentPage === 'docs' && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">📖 Documentation</h2>
+              
+              <div className="space-y-8">
+                <section>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Getting Started</h3>
+                  <div className="prose prose-gray max-w-none">
+                    <p className="text-gray-600 mb-4">
+                      The @supernal-interface system allows you to create AI-controllable tools using simple decorators.
+                      Here's how to get started:
+                    </p>
+                    
+                    <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                      <h4 className="font-medium mb-2">1. Install the Package</h4>
+                      <code className="bg-gray-800 text-green-400 p-2 rounded block">
+                        npm install @supernal-interface/core
+                      </code>
+                    </div>
+                    
+                    <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                      <h4 className="font-medium mb-2">2. Create a Tool Provider</h4>
+                      <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto">
+{`import { Tool, ToolProvider } from '@supernal-interface/core';
+
+@ToolProvider({ category: 'ui-controls' })
+export class MyTools {
+  @Tool({
+    testId: 'my-button',
+    description: 'Click a button',
+    aiEnabled: true,
+    dangerLevel: 'safe',
+    examples: ['click button', 'press button']
+  })
+  async clickButton(): Promise<{ success: boolean; message: string }> {
+    // Your implementation here
+    return { success: true, message: 'Button clicked!' };
+  }
+}`}
+                      </pre>
+                    </div>
+                    
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-medium mb-2">3. Register and Use</h4>
+                      <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto">
+{`import { ToolRegistry } from '@supernal-interface/core';
+import { MyTools } from './MyTools';
+
+// Initialize your tools
+const myTools = new MyTools();
+
+// Tools are automatically registered via decorators
+// Now they're available for AI execution!`}
+                      </pre>
+                    </div>
+                  </div>
+                </section>
+
+                <section>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Tool Decorator Options</h3>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">testId</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">string</td>
+                          <td className="px-6 py-4 text-sm text-gray-500">Unique identifier for testing</td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">description</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">string</td>
+                          <td className="px-6 py-4 text-sm text-gray-500">Human-readable description</td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">aiEnabled</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">boolean</td>
+                          <td className="px-6 py-4 text-sm text-gray-500">Whether AI can execute this tool</td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">dangerLevel</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">'safe' | 'moderate' | 'destructive'</td>
+                          <td className="px-6 py-4 text-sm text-gray-500">Risk level for approval requirements</td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">examples</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">string[]</td>
+                          <td className="px-6 py-4 text-sm text-gray-500">Natural language examples for AI matching</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              </div>
             </div>
-          </div>
+          )}
+
+          {currentPage === 'examples' && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">💡 Examples</h2>
+              
+              <div className="space-y-8">
+                <section>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Basic Button Control</h3>
+                  <p className="text-gray-600 mb-4">Simple button interaction with AI control:</p>
+                  <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto">
+{`@Tool({
+  testId: 'open-menu-button',
+  description: 'Open the main menu',
+  aiEnabled: true,
+  dangerLevel: 'safe',
+  examples: ['open menu', 'show menu', 'display menu']
+})
+async openMainMenu(): Promise<{ success: boolean; message: string }> {
+  this.menuOpen = true;
+  return { success: true, message: 'Main menu opened' };
+}`}
+                  </pre>
+                </section>
+
+                <section>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Parameter-Based Tools</h3>
+                  <p className="text-gray-600 mb-4">Tools that accept parameters from natural language:</p>
+                  <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto">
+{`@Tool({
+  testId: 'theme-selector',
+  description: 'Change the application theme',
+  aiEnabled: true,
+  dangerLevel: 'safe',
+  examples: ['set theme dark', 'change theme light', 'use auto theme']
+})
+async setTheme(theme: 'light' | 'dark' | 'auto'): Promise<{ success: boolean; message: string }> {
+  if (!['light', 'dark', 'auto'].includes(theme)) {
+    return { 
+      success: false, 
+      message: 'Invalid theme. Use: light, dark, or auto' 
+    };
+  }
+  
+  this.currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  return { success: true, message: \`Theme changed to \${theme}\` };
+}`}
+                  </pre>
+                </section>
+
+                <section>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Form Handling</h3>
+                  <p className="text-gray-600 mb-4">Processing form data through AI commands:</p>
+                  <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto">
+{`@Tool({
+  testId: 'user-form',
+  description: 'Submit user information form',
+  aiEnabled: true,
+  dangerLevel: 'moderate',
+  examples: ['submit form with John', 'send form data', 'save user info']
+})
+async submitForm(name: string): Promise<{ success: boolean; message: string }> {
+  if (!name || name.trim().length === 0) {
+    return { 
+      success: false, 
+      message: 'Name is required' 
+    };
+  }
+  
+  // Process the form data
+  await this.saveUserData({ name: name.trim() });
+  return { success: true, message: \`Form submitted for \${name}\` };
+}`}
+                  </pre>
+                </section>
+              </div>
+            </div>
+          )}
+
+          {currentPage === 'api' && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">🔧 API Reference</h2>
+              
+              <div className="space-y-8">
+                <section>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Core Classes</h3>
+                  
+                  <div className="space-y-6">
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="text-lg font-medium mb-2">ToolRegistry</h4>
+                      <p className="text-gray-600 mb-3">Central registry for all @Tool decorated methods.</p>
+                      
+                      <div className="space-y-2">
+                        <div className="bg-gray-50 p-3 rounded">
+                          <code className="text-sm">getAllTools(): Map&lt;string, ToolMetadata&gt;</code>
+                          <p className="text-xs text-gray-600 mt-1">Returns all registered tools</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded">
+                          <code className="text-sm">searchTools(query: string): ToolMetadata[]</code>
+                          <p className="text-xs text-gray-600 mt-1">Search tools by natural language query</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded">
+                          <code className="text-sm">getToolsByCategory(category: string): ToolMetadata[]</code>
+                          <p className="text-xs text-gray-600 mt-1">Get tools by provider category</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="text-lg font-medium mb-2">ToolMetadata</h4>
+                      <p className="text-gray-600 mb-3">Interface describing a registered tool.</p>
+                      
+                      <div className="space-y-2">
+                        <div className="bg-gray-50 p-3 rounded">
+                          <code className="text-sm">name: string</code>
+                          <p className="text-xs text-gray-600 mt-1">Tool display name</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded">
+                          <code className="text-sm">methodName: string</code>
+                          <p className="text-xs text-gray-600 mt-1">Actual method name</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded">
+                          <code className="text-sm">testId: string</code>
+                          <p className="text-xs text-gray-600 mt-1">Unique test identifier</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded">
+                          <code className="text-sm">aiEnabled: boolean</code>
+                          <p className="text-xs text-gray-600 mt-1">Whether AI can execute this tool</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded">
+                          <code className="text-sm">dangerLevel: 'safe' | 'moderate' | 'destructive'</code>
+                          <p className="text-xs text-gray-600 mt-1">Risk assessment level</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded">
+                          <code className="text-sm">examples: string[]</code>
+                          <p className="text-xs text-gray-600 mt-1">Natural language examples</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Decorators</h3>
+                  
+                  <div className="space-y-4">
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="text-lg font-medium mb-2">@Tool(options)</h4>
+                      <p className="text-gray-600 mb-3">Marks a method as an AI-controllable tool.</p>
+                      <pre className="bg-gray-800 text-green-400 p-3 rounded text-sm">
+{`interface ToolOptions {
+  testId: string;
+  description: string;
+  aiEnabled?: boolean;
+  dangerLevel?: 'safe' | 'moderate' | 'destructive';
+  requiresApproval?: boolean;
+  examples?: string[];
+}`}
+                      </pre>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="text-lg font-medium mb-2">@ToolProvider(options)</h4>
+                      <p className="text-gray-600 mb-3">Marks a class as a provider of tools.</p>
+                      <pre className="bg-gray-800 text-green-400 p-3 rounded text-sm">
+{`interface ToolProviderOptions {
+  category: string;
+  description?: string;
+}`}
+                      </pre>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Persistent Chat Bubble */}

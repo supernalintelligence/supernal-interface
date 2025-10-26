@@ -12,7 +12,10 @@ export class QuickToolTest {
     this.aiInterface = new DemoAIInterface();
   }
 
-  async testParameterBasedTools(): Promise<{ passed: number; failed: number; results: any[] }> {
+  async testParameterBasedTools(
+    onProgress?: (current: number, total: number, testName: string, result?: any) => void,
+    delayMs: number = 800
+  ): Promise<{ passed: number; failed: number; results: any[] }> {
     const tests = [
       { name: 'Set Theme Dark', query: 'set theme dark', expectedSuccess: true },
       { name: 'Set Theme Light', query: 'set theme light', expectedSuccess: true },
@@ -31,12 +34,26 @@ export class QuickToolTest {
 
     console.log('🧪 Testing Parameter-Based Tools...\n');
 
-    for (const test of tests) {
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      
+      // Notify progress - starting test
+      onProgress?.(i + 1, tests.length, test.name);
+      
       try {
         const command = this.aiInterface.findToolsForCommand(test.query);
         const response = await this.aiInterface.executeCommand(command, true);
         
         const testPassed = response.success === test.expectedSuccess;
+        const result = {
+          name: test.name,
+          query: test.query,
+          expectedSuccess: test.expectedSuccess,
+          actualSuccess: response.success,
+          message: response.message,
+          passed: testPassed
+        };
+        
         if (testPassed) {
           passed++;
           console.log(`✅ ${test.name}: PASS`);
@@ -45,18 +62,16 @@ export class QuickToolTest {
           console.log(`❌ ${test.name}: FAIL - Expected ${test.expectedSuccess ? 'success' : 'failure'}, got ${response.success ? 'success' : 'failure'}`);
         }
         
-        results.push({
-          name: test.name,
-          query: test.query,
-          expectedSuccess: test.expectedSuccess,
-          actualSuccess: response.success,
-          message: response.message,
-          passed: testPassed
-        });
+        results.push(result);
+        
+        // Notify progress - test completed
+        onProgress?.(i + 1, tests.length, test.name, result);
+        
       } catch (error) {
         failed++;
         console.log(`❌ ${test.name}: ERROR - ${error}`);
-        results.push({
+        
+        const result = {
           name: test.name,
           query: test.query,
           expectedSuccess: test.expectedSuccess,
@@ -64,7 +79,17 @@ export class QuickToolTest {
           message: error instanceof Error ? error.message : String(error),
           passed: false,
           error: true
-        });
+        };
+        
+        results.push(result);
+        
+        // Notify progress - test completed with error
+        onProgress?.(i + 1, tests.length, test.name, result);
+      }
+      
+      // Add delay between tests for better visual feedback
+      if (i < tests.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
       }
     }
 
