@@ -99,9 +99,12 @@ Try the interactive demo: [https://supernal-interface-demo.vercel.app](https://s
 | `providerName` | `string` | Provider name for standalone functions |
 | `description` | `string` | Human-readable description |
 | `aiEnabled` | `boolean` | Whether AI can execute this tool |
-| `dangerLevel` | `'safe' \| 'moderate' \| 'dangerous' \| 'destructive'` | Risk level for approval |
+| `dangerLevel` | `'safe' \| 'moderate' \| 'destructive'` | Risk level for approval |
 | `examples` | `string[]` | Natural language examples for AI matching |
 | `origin` | `object` | Where tool is available (path, elements, modal) |
+| `toolType` | `string` | Tool classification: 'test-only', 'ai-safe', 'ai-restricted', 'ai-dangerous' |
+| `executionContext` | `string` | Where tool runs: 'ui', 'api', 'both' |
+| `requiresApproval` | `boolean` | Whether tool requires human approval before execution |
 
 ### CLI-Like Tool Discovery
 
@@ -130,11 +133,25 @@ console.log(ToolRegistry.find('theme'));
 const uiTools = ToolRegistry.getToolsByProvider('UIControls');
 ```
 
+### Tool Types
+
+- **`test-only`**: Tool is only available for testing, not AI execution (default for dangerous operations)
+- **`ai-safe`**: Safe for AI execution without restrictions (read-only operations)
+- **`ai-restricted`**: AI can execute but may require approval (create, update operations)
+- **`ai-dangerous`**: AI can execute but always requires approval (dangerous operations)
+
 ### Danger Levels
 
-- **`safe`**: No approval required, safe for AI execution
-- **`moderate`**: May require approval for sensitive operations
-- **`destructive`**: Always requires approval for dangerous operations
+- **`safe`**: No approval required, safe for AI execution (read-only, navigation)
+- **`moderate`**: May require approval for sensitive operations (create, update, modify)
+- **`dangerous`**: Requires approval for risky operations (approve, reject, ban, suspend)
+- **`destructive`**: Always requires approval for dangerous operations (delete, remove, destroy)
+
+### Execution Contexts
+
+- **`ui`**: Tool interacts with user interface elements (buttons, forms, navigation)
+- **`api`**: Tool makes API calls or data operations (create, read, update, delete)
+- **`both`**: Tool can work in both UI and API contexts
 
 ## 🧪 Testing
 
@@ -149,21 +166,29 @@ The system includes comprehensive testing that validates:
 
 ### Core Components
 
-- **`ToolRegistry`**: Central registry for all decorated tools
-- **`@Tool`**: Decorator to mark methods as AI-controllable
+- **`ToolRegistry`**: Central registry with CLI-like discovery methods
+  - `list()`, `help()`, `overview()`, `find()` - CLI-like tool discovery
+  - `getToolsByProvider()`, `getProviders()` - Programmatic access
+  - `searchTools()`, `getAllTools()` - Search and retrieval
+- **`@Tool`**: Decorator for both class methods and standalone functions
 - **`@ToolProvider`**: Decorator to mark classes as tool providers
-- **`ToolMetadata`**: Interface describing registered tools
+- **`ToolMetadata`**: Interface describing registered tools with enhanced properties
 
-### Browser Support
+### Registry API
 
 ```typescript
-import { ToolRegistry } from '@supernal-interface/core/browser';
+import { ToolRegistry } from '@supernal-interface/core';
 
-// Search tools by natural language
+// CLI-like discovery
+console.log(ToolRegistry.overview());           // Show all stats and providers
+console.log(ToolRegistry.list());               // List all tools
+console.log(ToolRegistry.help('toolId'));       // Get detailed help
+console.log(ToolRegistry.find('keyword'));      // Search tools
+
+// Programmatic access
 const tools = ToolRegistry.searchTools('save user data');
-
-// Get all registered tools
-const allTools = ToolRegistry.getAllTools();
+const allTools = Array.from(ToolRegistry.getAllTools().values());
+const uiTools = ToolRegistry.getToolsByProvider('UIControls');
 ```
 
 ## 🎯 Use Cases
