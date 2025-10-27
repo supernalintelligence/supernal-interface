@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.19.4'
           cache: 'npm'
           cache-dependency-path: 'core/package-lock.json'
 
@@ -50,10 +50,6 @@ jobs:
           cd core
           npm run build
 
-      - name: Build demo
-        run: |
-          cd core
-          npm run demo:build
 
   publish:
     needs: test
@@ -66,7 +62,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.19.4'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
           cache-dependency-path: 'core/package-lock.json'
