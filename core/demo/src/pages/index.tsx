@@ -16,7 +16,7 @@ import { ToolTestResults } from '../components/ToolTestResults';
 import { QuickToolTest } from '../lib/QuickToolTest';
 import { CodeBlock, InlineCode } from '../components/CodeBlock';
 import { initializeAnalytics, trackPageView, trackToolExecution, trackDemoInteraction, trackTestExecution } from '../lib/analytics';
-import { getDashboardUrl, checkDashboardAvailability, getDashboardAlternatives } from '../lib/dashboardIntegration';
+import { getDashboardUrl, checkDashboardAvailability, getDashboardAlternatives, getDashboardConfig } from '../lib/dashboardIntegration';
 
 interface Message {
   id: string;

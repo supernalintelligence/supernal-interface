@@ -23,7 +23,7 @@ module.exports = {
       "argsIgnorePattern": "^_",
       "varsIgnorePattern": "^_" 
     }],
-    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-explicit-any": "off", // Allow any types for now
     "no-extra-semi": "error",
     "no-useless-escape": "error",
     "no-undef": "off" // TypeScript handles this
