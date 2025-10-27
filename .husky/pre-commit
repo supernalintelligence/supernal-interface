@@ -17,3 +17,4 @@ else
   echo "⚠️  lint-staged not available, running basic lint check..."
   cd core && npm run lint
 fi
+
