@@ -1,5 +1,5 @@
 {
-  "name": "@supernal-interface/core",
+  "name": "@supernal/interface-core",
   "version": "1.0.2",
   "description": "Universal AI Interface - Make any application AI-controllable and auto-testable",
   "main": "dist/index.js",
