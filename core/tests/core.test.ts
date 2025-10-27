@@ -285,7 +285,7 @@ describe('Supernal Interface Core Package', () => {
       const { VERSION, PACKAGE_NAME } = require('../src');
       
       expect(VERSION).toBeDefined();
-      expect(PACKAGE_NAME).toBe('@supernal-interface/core');
+      expect(PACKAGE_NAME).toBe('@supernal/interface-core');
     });
   });
 });
