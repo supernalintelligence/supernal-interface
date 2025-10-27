@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.19.4'
           cache: 'npm'
           cache-dependency-path: 'core/package-lock.json'
 
@@ -31,13 +31,26 @@ jobs:
           # Clear npm cache to avoid stale cache issues
           npm cache clean --force
           
-          if ! npm ci --dry-run > /dev/null 2>&1; then
+          # Run npm ci --dry-run and capture full output
+          echo "Running npm ci --dry-run to check sync..."
+          if ! npm ci --dry-run > sync_check.log 2>&1; then
             echo "❌ Core package-lock.json is out of sync with package.json"
-            echo "💡 The following packages are missing from lock file:"
-            npm ci --dry-run 2>&1 | grep "Missing:" || true
+            echo ""
+            echo "📋 Full npm ci --dry-run output:"
+            cat sync_check.log
             echo ""
             echo "🔧 To fix this locally, run: npm install"
             echo "📝 Then commit the updated package-lock.json"
+            
+            # Show package.json vs package-lock.json differences
+            echo ""
+            echo "📊 Analyzing differences..."
+            echo "Dependencies in package.json:"
+            node -e "console.log(JSON.stringify(require('./package.json').dependencies || {}, null, 2))"
+            echo ""
+            echo "DevDependencies in package.json:"
+            node -e "console.log(JSON.stringify(require('./package.json').devDependencies || {}, null, 2))"
+            
             exit 1
           fi
           echo "✅ Core package-lock.json is in sync"
