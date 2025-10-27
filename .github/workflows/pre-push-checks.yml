@@ -31,7 +31,7 @@ jobs:
           # Clear npm cache to avoid stale cache issues
           npm cache clean --force
           
-          # Run npm ci --dry-run and capture full output
+        # Run npm ci --dry-run and capture full output
           echo "Running npm ci --dry-run to check sync..."
           if ! npm ci --dry-run > sync_check.log 2>&1; then
             echo "❌ Core package-lock.json is out of sync with package.json"
