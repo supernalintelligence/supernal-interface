@@ -1,6 +1,6 @@
 /**
  * Tools Types - Index File
- * 
+ *
  * This is the main entry point for all tool-related types.
  * It re-exports all tool types from their specialized modules.
  */
@@ -29,7 +29,7 @@ export enum ElementType {
   SELECT = 'select',
   TEXTAREA = 'textarea',
   LINK = 'link',
-  DIV = 'div'
+  DIV = 'div',
 }
 
 export enum ActionType {
@@ -38,11 +38,11 @@ export enum ActionType {
   SELECT = 'select',
   NAVIGATE = 'navigate',
   HOVER = 'hover',
-  SCROLL = 'scroll'
+  SCROLL = 'scroll',
 }
 
 /**
  * Tools Types
- * 
+ *
  * Export of all tool-related types, interfaces and constants
- */ 
+ */

@@ -2,7 +2,7 @@
 
 /**
  * Supernal Interface CLI - Init Command
- * 
+ *
  * Initializes a project with Supernal Interface capabilities.
  * Sets up configuration, generates example files, and installs dependencies.
  */
@@ -19,7 +19,6 @@ export interface InitOptions {
 }
 
 export class SupernalInterfaceInit {
-  
   /**
    * Initialize a new project with Supernal Interface
    */
@@ -29,38 +28,38 @@ export class SupernalInterfaceInit {
       framework = 'jest',
       includePlaywright = true,
       includeExamples = true,
-      outputDir = './supernal-interface'
+      outputDir = './supernal-interface',
     } = options;
-    
+
     console.log('🚀 Initializing Supernal Interface project...');
-    
+
     try {
       // Create project directory
       await fs.mkdir(outputDir, { recursive: true });
-      
+
       // Generate package.json
       await this.generatePackageJson(outputDir, projectName, framework, includePlaywright);
-      
+
       // Generate TypeScript config
       await this.generateTsConfig(outputDir);
-      
+
       // Generate test configuration
       await this.generateTestConfig(outputDir, framework);
-      
+
       // Create directory structure
       await this.createDirectoryStructure(outputDir);
-      
+
       // Generate example files
       if (includeExamples) {
         await this.generateExamples(outputDir);
       }
-      
+
       // Generate setup files
       await this.generateSetupFiles(outputDir);
-      
+
       // Generate README
       await this.generateReadme(outputDir, projectName);
-      
+
       console.log('✅ Project initialized successfully!');
       console.log(`📁 Project created in: ${outputDir}`);
       console.log('\n📋 Next steps:');
@@ -68,19 +67,18 @@ export class SupernalInterfaceInit {
       console.log('   npm install');
       console.log('   npm run generate-tests');
       console.log('   npm test');
-      
     } catch (error) {
       console.error('❌ Failed to initialize project:', error);
       throw error;
     }
   }
-  
+
   /**
    * Generate package.json
    */
   private static async generatePackageJson(
-    outputDir: string, 
-    projectName: string, 
+    outputDir: string,
+    projectName: string,
     framework: string,
     includePlaywright: boolean
   ): Promise<void> {
@@ -95,15 +93,25 @@ export class SupernalInterfaceInit {
         'build:watch': 'tsc --watch',
         dev: 'ts-node src/index.ts',
         test: framework === 'jest' ? 'jest' : framework === 'vitest' ? 'vitest' : 'mocha',
-        'test:watch': framework === 'jest' ? 'jest --watch' : framework === 'vitest' ? 'vitest --watch' : 'mocha --watch',
-        'test:coverage': framework === 'jest' ? 'jest --coverage' : framework === 'vitest' ? 'vitest --coverage' : 'nyc mocha',
+        'test:watch':
+          framework === 'jest'
+            ? 'jest --watch'
+            : framework === 'vitest'
+              ? 'vitest --watch'
+              : 'mocha --watch',
+        'test:coverage':
+          framework === 'jest'
+            ? 'jest --coverage'
+            : framework === 'vitest'
+              ? 'vitest --coverage'
+              : 'nyc mocha',
         'generate-tests': 'ts-node scripts/generate-tests.ts',
         'generate-docs': 'ts-node scripts/generate-docs.ts',
         lint: 'eslint src --ext .ts',
-        'lint:fix': 'eslint src --ext .ts --fix'
+        'lint:fix': 'eslint src --ext .ts --fix',
       },
       dependencies: {
-        '@supernal-interface/core': '^1.0.0'
+        '@supernal-interface/core': '^1.0.0',
       },
       devDependencies: {
         '@types/node': '^20.0.0',
@@ -111,23 +119,23 @@ export class SupernalInterfaceInit {
         'ts-node': '^10.9.1',
         eslint: '^8.54.0',
         '@typescript-eslint/eslint-plugin': '^6.12.0',
-        '@typescript-eslint/parser': '^6.12.0'
-      }
+        '@typescript-eslint/parser': '^6.12.0',
+      },
     };
-    
+
     // Add framework-specific dependencies
     if (framework === 'jest') {
       packageJson.devDependencies = {
         ...packageJson.devDependencies,
         jest: '^29.7.0',
         'ts-jest': '^29.1.1',
-        '@types/jest': '^29.5.8'
+        '@types/jest': '^29.5.8',
       };
     } else if (framework === 'vitest') {
       packageJson.devDependencies = {
         ...packageJson.devDependencies,
         vitest: '^1.0.0',
-        '@vitest/ui': '^1.0.0'
+        '@vitest/ui': '^1.0.0',
       };
     } else if (framework === 'mocha') {
       packageJson.devDependencies = {
@@ -136,29 +144,26 @@ export class SupernalInterfaceInit {
         chai: '^4.3.0',
         '@types/mocha': '^10.0.0',
         '@types/chai': '^4.3.0',
-        nyc: '^15.1.0'
+        nyc: '^15.1.0',
       };
     }
-    
+
     // Add Playwright if requested
     if (includePlaywright) {
       packageJson.devDependencies = {
         ...packageJson.devDependencies,
-        '@playwright/test': '^1.40.0'
+        '@playwright/test': '^1.40.0',
       };
       packageJson.scripts = {
         ...packageJson.scripts,
         'test:e2e': 'playwright test',
-        'test:e2e:ui': 'playwright test --ui'
+        'test:e2e:ui': 'playwright test --ui',
       };
     }
-    
-    await fs.writeFile(
-      path.join(outputDir, 'package.json'),
-      JSON.stringify(packageJson, null, 2)
-    );
+
+    await fs.writeFile(path.join(outputDir, 'package.json'), JSON.stringify(packageJson, null, 2));
   }
-  
+
   /**
    * Generate TypeScript configuration
    */
@@ -179,24 +184,21 @@ export class SupernalInterfaceInit {
         sourceMap: true,
         experimentalDecorators: true,
         emitDecoratorMetadata: true,
-        resolveJsonModule: true
+        resolveJsonModule: true,
       },
       include: ['src/**/*'],
-      exclude: ['node_modules', 'dist', '**/*.test.ts', '**/*.spec.ts']
+      exclude: ['node_modules', 'dist', '**/*.test.ts', '**/*.spec.ts'],
     };
-    
-    await fs.writeFile(
-      path.join(outputDir, 'tsconfig.json'),
-      JSON.stringify(tsConfig, null, 2)
-    );
+
+    await fs.writeFile(path.join(outputDir, 'tsconfig.json'), JSON.stringify(tsConfig, null, 2));
   }
-  
+
   /**
    * Generate test configuration
    */
   private static async generateTestConfig(outputDir: string, framework: string): Promise<void> {
     let config = '';
-    
+
     if (framework === 'jest') {
       config = `module.exports = {
   preset: 'ts-jest',
@@ -231,7 +233,7 @@ export default defineConfig({
       await fs.writeFile(path.join(outputDir, 'vitest.config.ts'), config);
     }
   }
-  
+
   /**
    * Create directory structure
    */
@@ -243,14 +245,14 @@ export default defineConfig({
       'tests/manual',
       'scripts',
       'docs',
-      'examples'
+      'examples',
     ];
-    
+
     for (const dir of directories) {
       await fs.mkdir(path.join(outputDir, dir), { recursive: true });
     }
   }
-  
+
   /**
    * Generate example files
    */
@@ -313,12 +315,9 @@ export class UserProvider {
     this.users = this.users.filter(user => user.id !== userId);
   }
 }`;
-    
-    await fs.writeFile(
-      path.join(outputDir, 'src/providers/UserProvider.ts'),
-      exampleProvider
-    );
-    
+
+    await fs.writeFile(path.join(outputDir, 'src/providers/UserProvider.ts'), exampleProvider);
+
     // Main index file
     const indexFile = `import { UniversalToolRegistry } from '@supernal-interface/core';
 import { UserProvider } from './providers/UserProvider';
@@ -336,13 +335,10 @@ export * from './providers/UserProvider';
 // Log initialization
 console.log('🚀 Supernal Interface initialized');
 console.log('📊 Registry stats:', UniversalToolRegistry.getStats());`;
-    
-    await fs.writeFile(
-      path.join(outputDir, 'src/index.ts'),
-      indexFile
-    );
+
+    await fs.writeFile(path.join(outputDir, 'src/index.ts'), indexFile);
   }
-  
+
   /**
    * Generate setup files
    */
@@ -361,12 +357,9 @@ beforeAll(() => {
 afterAll(() => {
   // Clean up if needed
 });`;
-    
-    await fs.writeFile(
-      path.join(outputDir, 'tests/setup.ts'),
-      testSetup
-    );
-    
+
+    await fs.writeFile(path.join(outputDir, 'tests/setup.ts'), testSetup);
+
     // Test generation script
     const generateScript = `import { TestGenerator } from '@supernal-interface/core';
 import { UniversalToolRegistry } from '@supernal-interface/core';
@@ -388,12 +381,9 @@ async function generateTests() {
 }
 
 generateTests().catch(console.error);`;
-    
-    await fs.writeFile(
-      path.join(outputDir, 'scripts/generate-tests.ts'),
-      generateScript
-    );
-    
+
+    await fs.writeFile(path.join(outputDir, 'scripts/generate-tests.ts'), generateScript);
+
     // Documentation generation script
     const docsScript = `import { UniversalToolRegistry } from '@supernal-interface/core';
 import * as fs from 'fs/promises';
@@ -409,13 +399,10 @@ async function generateDocs() {
 }
 
 generateDocs().catch(console.error);`;
-    
-    await fs.writeFile(
-      path.join(outputDir, 'scripts/generate-docs.ts'),
-      docsScript
-    );
+
+    await fs.writeFile(path.join(outputDir, 'scripts/generate-docs.ts'), docsScript);
   }
-  
+
   /**
    * Generate README
    */
@@ -541,11 +528,8 @@ npm run lint               # Lint code
 ---
 
 **Powered by Supernal Interface** - Making applications AI-controllable with safety-first design.`;
-    
-    await fs.writeFile(
-      path.join(outputDir, 'README.md'),
-      readme
-    );
+
+    await fs.writeFile(path.join(outputDir, 'README.md'), readme);
   }
 }
 
@@ -553,11 +537,11 @@ npm run lint               # Lint code
 if (require.main === module) {
   const args = process.argv.slice(2);
   const options: InitOptions = {};
-  
+
   // Parse command line arguments
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     if (arg === '--name' && args[i + 1]) {
       options.projectName = args[i + 1];
       i++;
@@ -573,6 +557,6 @@ if (require.main === module) {
       i++;
     }
   }
-  
+
   SupernalInterfaceInit.init(options).catch(console.error);
 }

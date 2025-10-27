@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   env: {
-    browser: false,
+    browser: true,
     node: true,
     es2022: true
   },
@@ -17,10 +17,30 @@ module.exports = {
     "@typescript-eslint"
   ],
   rules: {
-    "no-unused-vars": "warn",
+    "no-unused-vars": "off", // Use TypeScript version instead
     "no-console": "warn",
-    "@typescript-eslint/no-unused-vars": "warn",
-    "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/no-explicit-any": "warn"
-  }
+    "@typescript-eslint/no-unused-vars": ["warn", { 
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_" 
+    }],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "no-extra-semi": "error",
+    "no-useless-escape": "error",
+    "no-undef": "off" // TypeScript handles this
+  },
+  overrides: [
+    {
+      files: ["**/*.test.ts", "**/*.spec.ts"],
+      rules: {
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    },
+    {
+      files: ["**/cli/**/*.ts"],
+      rules: {
+        "no-console": "off"
+      }
+    }
+  ]
 };

@@ -17,29 +17,32 @@ export const DEFAULT_CONFIG: UniversalConfig = {
   generateTests: false,
   generateDocumentation: true,
   overwriteExisting: false,
-  framework: 'react'
+  framework: 'react',
 };
 
 export const FRAMEWORK_PRESETS: Record<string, Partial<UniversalConfig>> = {
   react: {
     outputDir: 'src/generated',
-    framework: 'react'
+    framework: 'react',
   },
   vue: {
     outputDir: 'src/generated',
-    framework: 'vue'
+    framework: 'vue',
   },
   angular: {
     outputDir: 'src/generated',
-    framework: 'angular'
-  }
+    framework: 'angular',
+  },
 };
 
 export function getFrameworkPreset(framework: string): Partial<UniversalConfig> {
   return FRAMEWORK_PRESETS[framework] || {};
 }
 
-export function createConfig(framework?: string, overrides: Partial<UniversalConfig> = {}): UniversalConfig {
+export function createConfig(
+  framework?: string,
+  overrides: Partial<UniversalConfig> = {}
+): UniversalConfig {
   const preset = framework ? getFrameworkPreset(framework) : {};
   return { ...DEFAULT_CONFIG, ...preset, ...overrides };
 }
@@ -50,7 +53,7 @@ export function validateConfig(config: UniversalInterfaceConfig): string[] {
 
 export class ConfigBuilder {
   private config: UniversalInterfaceConfig = { ...DEFAULT_CONFIG };
-  
+
   build(): UniversalInterfaceConfig {
     return { ...this.config };
   }

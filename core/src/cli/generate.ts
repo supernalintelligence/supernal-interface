@@ -25,11 +25,11 @@ program
     console.log('🚀 Supernal Interface Generator');
     console.log(`📁 Scanning: ${options.scan}`);
     console.log(`📤 Output: ${options.output}`);
-    
+
     // Check initial registry state
     const initialTools = Array.from(ToolRegistry.getAllTools().values());
     console.log(`📊 Initial registry: ${initialTools.length} tools`);
-    
+
     if (initialTools.length === 0) {
       console.log('⚠️  No tools in registry. CLI cannot auto-load TypeScript decorators.');
       console.log('💡 To generate code:');
@@ -38,20 +38,20 @@ program
       console.log('   3. Or use the examples in examples/complete-system/');
       return;
     }
-    
+
     const config = createConfig('react', {
       outputDir: options.output,
-      overwriteExisting: true
+      overwriteExisting: true,
     });
-    
+
     const generator = new UniversalGenerator(config);
     const result = await generator.generateAll(initialTools);
-    
+
     if (result.errors.length > 0) {
       console.log('❌ Errors:', result.errors);
     } else {
       console.log(`✅ Generated ${result.filesWritten.length} files`);
-      result.filesWritten.forEach(file => console.log(`   📄 ${file}`));
+      result.filesWritten.forEach((file) => console.log(`   📄 ${file}`));
     }
   });
 

@@ -5,10 +5,10 @@
 import { ComponentInfo } from '../types';
 
 export interface StoryStep {
-  action: string;           // Method name from auto-generated simulation
-  params?: any[];          // Parameters to pass to the method
-  description?: string;    // Human-readable description
-  validation?: string;     // Optional validation method
+  action: string; // Method name from auto-generated simulation
+  params?: any[]; // Parameters to pass to the method
+  description?: string; // Human-readable description
+  validation?: string; // Optional validation method
 }
 
 export interface Story {
@@ -21,7 +21,7 @@ export interface StoryTemplate {
   name: string;
   description: string;
   stepTemplates: Array<{
-    actionPattern: string;    // Pattern to match against available methods
+    actionPattern: string; // Pattern to match against available methods
     params?: any[];
     description?: string;
     validation?: string;
@@ -29,78 +29,86 @@ export interface StoryTemplate {
 }
 
 export class StoryGenerator {
-  
   /**
    * Generate stories from templates using available simulation methods
    */
   generateStories(availableMethods: ComponentInfo[], templates: StoryTemplate[]): Story[] {
     const stories: Story[] = [];
-    
+
     for (const template of templates) {
       const story = this.generateStoryFromTemplate(template, availableMethods);
       if (story) {
         stories.push(story);
       }
     }
-    
+
     return stories;
   }
 
   /**
    * Generate a single story from template
    */
-  private generateStoryFromTemplate(template: StoryTemplate, availableMethods: ComponentInfo[]): Story | null {
+  private generateStoryFromTemplate(
+    template: StoryTemplate,
+    availableMethods: ComponentInfo[]
+  ): Story | null {
     const steps: StoryStep[] = [];
-    
+
     for (const stepTemplate of template.stepTemplates) {
       const matchingMethod = this.findMatchingMethod(stepTemplate.actionPattern, availableMethods);
-      
+
       if (matchingMethod) {
         steps.push({
           action: matchingMethod.methodName,
           params: stepTemplate.params,
           description: stepTemplate.description || `Execute ${matchingMethod.methodName}`,
-          validation: stepTemplate.validation
+          validation: stepTemplate.validation,
         });
       } else {
         // Skip story if required method not found
-        console.warn(`⚠️ Story "${template.name}" skipped: No method found for pattern "${stepTemplate.actionPattern}"`);
+        console.warn(
+          `⚠️ Story "${template.name}" skipped: No method found for pattern "${stepTemplate.actionPattern}"`
+        );
         return null;
       }
     }
-    
+
     return {
       name: template.name,
       description: template.description,
-      steps
+      steps,
     };
   }
 
   /**
    * Find method matching a pattern
    */
-  private findMatchingMethod(pattern: string, availableMethods: ComponentInfo[]): ComponentInfo | null {
+  private findMatchingMethod(
+    pattern: string,
+    availableMethods: ComponentInfo[]
+  ): ComponentInfo | null {
     // Exact match first
-    let match = availableMethods.find(method => method.methodName === pattern);
+    let match = availableMethods.find((method) => method.methodName === pattern);
     if (match) return match;
-    
+
     // Pattern matching (e.g., "*ChatInput" matches "typeChatInput")
     if (pattern.includes('*')) {
       const regex = new RegExp(pattern.replace('*', '.*'), 'i');
-      match = availableMethods.find(method => regex.test(method.methodName));
+      match = availableMethods.find((method) => regex.test(method.methodName));
       if (match) return match;
     }
-    
+
     // Fuzzy matching by element type and action
     if (pattern.includes(':')) {
       const [actionType, elementPattern] = pattern.split(':');
-      match = availableMethods.find(method => 
-        method.actionType === actionType && 
-        method.methodName.toLowerCase().includes(elementPattern.toLowerCase())
+      match = availableMethods.find(
+        (method) =>
+          method.actionType === actionType &&
+          method.methodName.toLowerCase().includes(elementPattern.toLowerCase())
       );
       if (match) return match;
     }
-    
+
     return null;
   }
 
@@ -108,23 +116,27 @@ export class StoryGenerator {
    * Generate TypeScript code for stories
    */
   generateStoryCode(stories: Story[]): string {
-    const storyDefinitions = stories.map(story => {
-      const steps = story.steps.map(step => {
-        const params = step.params ? `, ${JSON.stringify(step.params).slice(1, -1)}` : '';
-        return `    {
+    const storyDefinitions = stories
+      .map((story) => {
+        const steps = story.steps
+          .map((step) => {
+            const params = step.params ? `, ${JSON.stringify(step.params).slice(1, -1)}` : '';
+            return `    {
       action: '${step.action}',
-      params: [${step.params?.map(p => JSON.stringify(p)).join(', ') || ''}],
+      params: [${step.params?.map((p) => JSON.stringify(p)).join(', ') || ''}],
       description: '${step.description}'${step.validation ? `,\n      validation: '${step.validation}'` : ''}
     }`;
-      }).join(',\n');
+          })
+          .join(',\n');
 
-      return `  ${story.name}: {
+        return `  ${story.name}: {
     description: '${story.description}',
     steps: [
 ${steps}
     ]
   }`;
-    }).join(',\n\n');
+      })
+      .join(',\n\n');
 
     return `/**
  * Auto-generated SimpleStories
@@ -203,5 +215,3 @@ export async function executeAutoGeneratedStory(
 }`;
   }
 }
-
-

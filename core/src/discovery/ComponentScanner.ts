@@ -6,11 +6,11 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 
 export interface ComponentUsage {
-  element: string;        // 'button', 'input', 'textarea'
-  props: string[];        // ['onClick', 'className']
-  file: string;          // Relative file path
-  constantName: string;   // SUPERNAL_CHAT_INPUT
-  fullTag: string;       // JSX tag snippet
+  element: string; // 'button', 'input', 'textarea'
+  props: string[]; // ['onClick', 'className']
+  file: string; // Relative file path
+  constantName: string; // SUPERNAL_CHAT_INPUT
+  fullTag: string; // JSX tag snippet
 }
 
 export class ComponentScanner {
@@ -29,23 +29,23 @@ export class ComponentScanner {
    */
   private async findReactFiles(dir: string, extensions = ['.tsx', '.jsx']): Promise<string[]> {
     const files: string[] = [];
-    
+
     try {
       const entries = await fs.readdir(dir, { withFileTypes: true });
-      
+
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
-        
+
         if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
-          files.push(...await this.findReactFiles(fullPath, extensions));
-        } else if (entry.isFile() && extensions.some(ext => entry.name.endsWith(ext))) {
+          files.push(...(await this.findReactFiles(fullPath, extensions)));
+        } else if (entry.isFile() && extensions.some((ext) => entry.name.endsWith(ext))) {
           files.push(fullPath);
         }
       }
     } catch (error) {
       // Skip directories we can't read
     }
-    
+
     return files;
   }
 
@@ -57,7 +57,7 @@ export class ComponentScanner {
 
     for (const directory of directories) {
       const files = await this.findReactFiles(directory);
-      
+
       for (const file of files) {
         await this.scanFile(file);
       }
@@ -72,7 +72,7 @@ export class ComponentScanner {
   private async scanFile(filePath: string): Promise<void> {
     try {
       const content = await fs.readFile(filePath, 'utf8');
-      
+
       // Look for data-testid usage with ComponentNames constants
       for (const [testId, constantName] of this.componentNames) {
         if (content.includes(testId) || content.includes(constantName)) {
@@ -90,7 +90,12 @@ export class ComponentScanner {
   /**
    * Extract component usage details from file content
    */
-  private extractComponentUsage(content: string, testId: string, constantName: string, filePath: string): ComponentUsage | null {
+  private extractComponentUsage(
+    content: string,
+    testId: string,
+    constantName: string,
+    filePath: string
+  ): ComponentUsage | null {
     // Look for JSX elements with this testId
     const patterns = [
       // <button data-testid={CONSTANT_NAME}
@@ -103,21 +108,21 @@ export class ComponentScanner {
       const matches = [...content.matchAll(pattern)];
       if (matches.length > 0) {
         const element = matches[0][1].toLowerCase();
-        
+
         // Extract the full JSX tag to analyze props
         const tagPattern = new RegExp(`<${matches[0][1]}[^>]*>`, 'g');
         const tagMatches = [...content.matchAll(tagPattern)];
-        
+
         if (tagMatches.length > 0) {
           const fullTag = tagMatches[0][0];
           const props = this.extractProps(fullTag);
-          
+
           return {
             element,
             props,
             file: path.relative(process.cwd(), filePath),
             constantName,
-            fullTag: fullTag.substring(0, 200) + (fullTag.length > 200 ? '...' : '')
+            fullTag: fullTag.substring(0, 200) + (fullTag.length > 200 ? '...' : ''),
           };
         }
       }
@@ -131,7 +136,7 @@ export class ComponentScanner {
    */
   private extractProps(jsxTag: string): string[] {
     const props: string[] = [];
-    
+
     // Common prop patterns
     const propPatterns = [
       /onClick\s*=/g,
@@ -142,12 +147,12 @@ export class ComponentScanner {
       /role\s*=\s*["']([^"']+)["']/g,
       /className\s*=/g,
       /value\s*=/g,
-      /placeholder\s*=/g
+      /placeholder\s*=/g,
     ];
 
     for (const pattern of propPatterns) {
       const matches = [...jsxTag.matchAll(pattern)];
-      matches.forEach(match => {
+      matches.forEach((match) => {
         if (match[1]) {
           props.push(`${match[0].split('=')[0]}="${match[1]}"`);
         } else {

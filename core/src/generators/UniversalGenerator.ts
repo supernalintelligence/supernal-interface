@@ -56,7 +56,7 @@ export class UniversalGenerator {
   async generateAll(tools: ToolMetadata[]): Promise<GenerationResult> {
     const result: GenerationResult = {
       filesWritten: [],
-      errors: []
+      errors: [],
     };
 
     if (tools.length === 0) {
@@ -89,9 +89,10 @@ export class UniversalGenerator {
       if (this.config.generateDocumentation) {
         await this.generateDocumentation(tools, result);
       }
-
     } catch (error) {
-      result.errors.push(`Generation failed: ${error instanceof Error ? error.message : String(error)}`);
+      result.errors.push(
+        `Generation failed: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
 
     return result;
@@ -104,34 +105,39 @@ export class UniversalGenerator {
     try {
       const className = this.config.simulationClassName || 'UniversalSimulation';
       const simulationCode = this.generateSimulationClass(tools, className);
-      
+
       result.simulationCode = simulationCode;
-      
+
       const filePath = path.join(this.config.outputDir, `${className}.ts`);
       await fs.writeFile(filePath, simulationCode);
       result.filesWritten.push(filePath);
-      
     } catch (error) {
-      result.errors.push(`Simulation generation failed: ${error instanceof Error ? error.message : String(error)}`);
+      result.errors.push(
+        `Simulation generation failed: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
   /**
    * Generate AI interface code
    */
-  private async generateAIInterface(tools: ToolMetadata[], result: GenerationResult): Promise<void> {
+  private async generateAIInterface(
+    tools: ToolMetadata[],
+    result: GenerationResult
+  ): Promise<void> {
     try {
       const className = this.config.aiInterfaceClassName || 'UniversalAIInterface';
       const aiInterfaceCode = this.generateAIInterfaceClass(tools, className);
-      
+
       result.aiInterfaceCode = aiInterfaceCode;
-      
+
       const filePath = path.join(this.config.outputDir, `${className}.ts`);
       await fs.writeFile(filePath, aiInterfaceCode);
       result.filesWritten.push(filePath);
-      
     } catch (error) {
-      result.errors.push(`AI Interface generation failed: ${error instanceof Error ? error.message : String(error)}`);
+      result.errors.push(
+        `AI Interface generation failed: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -143,15 +149,16 @@ export class UniversalGenerator {
       const className = this.config.storyClassName || 'UniversalStories';
       const simulationClassName = this.config.simulationClassName || 'UniversalSimulation';
       const storiesCode = this.generateStoriesClass(tools, className, simulationClassName);
-      
+
       result.storiesCode = storiesCode;
-      
+
       const filePath = path.join(this.config.outputDir, `${className}.ts`);
       await fs.writeFile(filePath, storiesCode);
       result.filesWritten.push(filePath);
-      
     } catch (error) {
-      result.errors.push(`Stories generation failed: ${error instanceof Error ? error.message : String(error)}`);
+      result.errors.push(
+        `Stories generation failed: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -161,33 +168,38 @@ export class UniversalGenerator {
   private async generateTests(tools: ToolMetadata[], result: GenerationResult): Promise<void> {
     try {
       const testsCode = this.generateTestsClass(tools);
-      
+
       result.testsCode = testsCode;
-      
+
       const filePath = path.join(this.config.outputDir, 'generated.test.ts');
       await fs.writeFile(filePath, testsCode);
       result.filesWritten.push(filePath);
-      
     } catch (error) {
-      result.errors.push(`Tests generation failed: ${error instanceof Error ? error.message : String(error)}`);
+      result.errors.push(
+        `Tests generation failed: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
   /**
    * Generate documentation
    */
-  private async generateDocumentation(tools: ToolMetadata[], result: GenerationResult): Promise<void> {
+  private async generateDocumentation(
+    tools: ToolMetadata[],
+    result: GenerationResult
+  ): Promise<void> {
     try {
       const docsCode = this.generateDocumentationMarkdown(tools);
-      
+
       result.documentationCode = docsCode;
-      
+
       const filePath = path.join(this.config.outputDir, 'GENERATED_DOCUMENTATION.md');
       await fs.writeFile(filePath, docsCode);
       result.filesWritten.push(filePath);
-      
     } catch (error) {
-      result.errors.push(`Documentation generation failed: ${error instanceof Error ? error.message : String(error)}`);
+      result.errors.push(
+        `Documentation generation failed: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -195,9 +207,9 @@ export class UniversalGenerator {
    * Generate Playwright simulation class
    */
   private generateSimulationClass(tools: ToolMetadata[], className: string): string {
-    const aiTools = tools.filter(tool => tool.aiEnabled);
-    const testTools = tools.filter(tool => !tool.aiEnabled);
-    
+    const aiTools = tools.filter((tool) => tool.aiEnabled);
+    const testTools = tools.filter((tool) => !tool.aiEnabled);
+
     return `/**
  * Auto-generated ${className}
  * Generated from @Tool decorators - DO NOT EDIT MANUALLY
@@ -220,7 +232,7 @@ export class ${className} {
     return this.context.locator(\`[data-testid="\${testId}"]\`);
   }
 
-${tools.map(tool => this.generateSimulationMethod(tool)).join('\n\n')}
+${tools.map((tool) => this.generateSimulationMethod(tool)).join('\n\n')}
 }`;
   }
 
@@ -279,8 +291,8 @@ ${tools.map(tool => this.generateSimulationMethod(tool)).join('\n\n')}
    * Generate AI interface class
    */
   private generateAIInterfaceClass(tools: ToolMetadata[], className: string): string {
-    const aiTools = tools.filter(tool => tool.aiEnabled);
-    
+    const aiTools = tools.filter((tool) => tool.aiEnabled);
+
     return `/**
  * Auto-generated ${className}
  * Generated from @Tool decorators - DO NOT EDIT MANUALLY
@@ -304,7 +316,7 @@ export interface AIToolDefinition {
 
 export class ${className} {
   private tools: Record<string, AIToolDefinition> = {
-${aiTools.map(tool => this.generateAIToolDefinition(tool)).join(',\n')}
+${aiTools.map((tool) => this.generateAIToolDefinition(tool)).join(',\n')}
   };
 
   /**
@@ -380,7 +392,11 @@ ${aiTools.map(tool => this.generateAIToolDefinition(tool)).join(',\n')}
   /**
    * Generate stories class
    */
-  private generateStoriesClass(tools: ToolMetadata[], className: string, simulationClassName: string): string {
+  private generateStoriesClass(
+    tools: ToolMetadata[],
+    className: string,
+    simulationClassName: string
+  ): string {
     return `/**
  * Auto-generated ${className}
  * Generated from @Tool decorators - DO NOT EDIT MANUALLY
@@ -401,7 +417,7 @@ export interface StoryResult {
 export class ${className} {
   constructor(private simulation: ${simulationClassName}) {}
 
-${tools.map(tool => this.generateStoryMethod(tool)).join('\n\n')}
+${tools.map((tool) => this.generateStoryMethod(tool)).join('\n\n')}
 
   /**
    * Run all stories
@@ -409,7 +425,7 @@ ${tools.map(tool => this.generateStoryMethod(tool)).join('\n\n')}
   async runAllStories(): Promise<StoryResult[]> {
     const results: StoryResult[] = [];
     
-${tools.map(tool => `    results.push(await this.story_${tool.methodName}());`).join('\n')}
+${tools.map((tool) => `    results.push(await this.story_${tool.methodName}());`).join('\n')}
     
     return results;
   }
@@ -489,7 +505,7 @@ ${tools.map(tool => `    results.push(await this.story_${tool.methodName}());`).
 import { test, expect } from '@playwright/test';
 
 test.describe('Generated Tool Tests', () => {
-${tools.map(tool => this.generateTestMethod(tool)).join('\n\n')}
+${tools.map((tool) => this.generateTestMethod(tool)).join('\n\n')}
 });`;
   }
 
@@ -532,9 +548,9 @@ ${tools.map(tool => this.generateTestMethod(tool)).join('\n\n')}
    * Generate documentation markdown
    */
   private generateDocumentationMarkdown(tools: ToolMetadata[]): string {
-    const aiTools = tools.filter(tool => tool.aiEnabled);
-    const testTools = tools.filter(tool => !tool.aiEnabled);
-    
+    const aiTools = tools.filter((tool) => tool.aiEnabled);
+    const testTools = tools.filter((tool) => !tool.aiEnabled);
+
     return `# Generated Tool Documentation
 
 Generated: ${new Date().toISOString()}
@@ -547,7 +563,9 @@ Generated: ${new Date().toISOString()}
 
 ## AI-Enabled Tools
 
-${aiTools.map(tool => `### ${tool.name}
+${aiTools
+  .map(
+    (tool) => `### ${tool.name}
 
 - **Method**: \`${tool.methodName}()\`
 - **Test ID**: \`${tool.testId}\`
@@ -559,13 +577,17 @@ ${aiTools.map(tool => `### ${tool.name}
 **Description**: ${tool.description}
 
 **Examples**:
-${(tool.examples || []).map(ex => `- "${ex}"`).join('\n')}
+${(tool.examples || []).map((ex) => `- "${ex}"`).join('\n')}
 
----`).join('\n\n')}
+---`
+  )
+  .join('\n\n')}
 
 ## Test-Only Tools
 
-${testTools.map(tool => `### ${tool.name}
+${testTools
+  .map(
+    (tool) => `### ${tool.name}
 
 - **Method**: \`${tool.methodName}()\`
 - **Test ID**: \`${tool.testId}\`
@@ -575,7 +597,9 @@ ${testTools.map(tool => `### ${tool.name}
 
 **Description**: ${tool.description}
 
----`).join('\n\n')}
+---`
+  )
+  .join('\n\n')}
 
 ## Usage
 
@@ -584,7 +608,10 @@ ${testTools.map(tool => `### ${tool.name}
 import { ${this.config.simulationClassName || 'UniversalSimulation'} } from './generated/${this.config.simulationClassName || 'UniversalSimulation'}';
 
 const simulation = new ${this.config.simulationClassName || 'UniversalSimulation'}(page);
-${tools.slice(0, 3).map(tool => `await simulation.${tool.methodName}();`).join('\n')}
+${tools
+  .slice(0, 3)
+  .map((tool) => `await simulation.${tool.methodName}();`)
+  .join('\n')}
 \`\`\`
 
 ### AI Interface

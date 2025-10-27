@@ -1,6 +1,6 @@
 /**
  * Supernal Interface - Core Package
- * 
+ *
  * Universal system for making any application AI-controllable and auto-testable.
  * Extends supernal-command's proven architecture with AI safety controls.
  */
@@ -9,7 +9,12 @@
 export { Tool, ToolConfig, ToolMetadata } from './decorators/Tool';
 // Deprecated: Use ToolRegistry.getAllTools() and ToolRegistry.getTool() instead
 export { getStandaloneTools, getStandaloneTool } from './decorators/Tool';
-export { ToolProvider, ToolProviderConfig, getToolProviderConfig, isToolProvider } from './decorators/ToolProvider';
+export {
+  ToolProvider,
+  ToolProviderConfig,
+  getToolProviderConfig,
+  isToolProvider,
+} from './decorators/ToolProvider';
 
 // Registry system (simplified - no execution bundling)
 export { ToolRegistry } from './registry/ToolRegistry';
@@ -19,33 +24,40 @@ export { TestGenerator, TestGenerationOptions } from './generators/TestGenerator
 export { UniversalGenerator } from './generators/UniversalGenerator';
 
 // Execution engines (separate - not bundled)
-export { PlaywrightExecutor } from './execution/PlaywrightExecutor';  // For testing
-export { DOMExecutor } from './execution/DOMExecutor';                // For AI control
+export { PlaywrightExecutor } from './execution/PlaywrightExecutor'; // For testing
+export { DOMExecutor } from './execution/DOMExecutor'; // For AI control
 
 // AI interface
-export { UniversalChatInterface, ChatQuery, ChatResponse } from './integration/UniversalChatInterface';
+export {
+  UniversalChatInterface,
+  ChatQuery,
+  ChatResponse,
+} from './integration/UniversalChatInterface';
 
 // CLI tools
 export { SupernalInterfaceInit, InitOptions } from './cli/init';
 export { program as CLI } from './cli/generate';
 
 // Configuration system
-export { 
-  UniversalInterfaceConfig, 
-  DEFAULT_CONFIG, 
+export {
+  UniversalInterfaceConfig,
+  DEFAULT_CONFIG,
   FRAMEWORK_PRESETS,
   createConfig,
   getFrameworkPreset,
   validateConfig,
   ConfigBuilder,
-  configBuilder
+  configBuilder,
 } from './config/UniversalInterfaceConfig';
 
 // Discovery system (from testing-tools)
 export { ComponentDiscovery } from './discovery/ComponentDiscovery';
 export { ComponentScanner } from './discovery/ComponentScanner';
 export { InferenceEngine } from './discovery/InferenceEngine';
-export { GenericComponentDiscovery, ComponentDiscoveryFactory } from './discovery/GenericComponentDiscovery';
+export {
+  GenericComponentDiscovery,
+  ComponentDiscoveryFactory,
+} from './discovery/GenericComponentDiscovery';
 
 // Story generation (from testing-tools)
 export { StoryGenerator } from './story/StoryGenerator';
@@ -56,7 +68,7 @@ export {
   ToolFrequency,
   ToolComplexity,
   ToolPermissionTier,
-  ToolAccessLevel
+  ToolAccessLevel,
 } from './types';
 
 // Tool types (copied from supernal-command)
@@ -82,6 +94,6 @@ export const PACKAGE_INFO = {
     'Safety-first AI controls',
     'Playwright integration',
     'CLI initialization tools',
-    'Approval workflows'
-  ]
+    'Approval workflows',
+  ],
 };

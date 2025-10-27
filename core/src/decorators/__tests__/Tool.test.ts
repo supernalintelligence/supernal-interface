@@ -1,12 +1,17 @@
 /**
  * Tool Decorator Test Suite
- * 
+ *
  * Unit tests for @Tool decorator with JSDoc integration and category inference.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Tool, ToolMetadata, extractJSDocInfo } from '../Tool';
-import { ToolCategory, ToolPermissionTier, ToolFrequency, ToolComplexity } from '@supernal-command/types';
+import {
+  ToolCategory,
+  ToolPermissionTier,
+  ToolFrequency,
+  ToolComplexity,
+} from '@supernal-command/types';
 
 describe('@Tool Decorator', () => {
   let TestClass: any;
@@ -69,7 +74,11 @@ describe('@Tool Decorator', () => {
 
       const tools = TestManager.prototype.__tools__ || [];
       expect(tools).toHaveLength(3);
-      expect(tools.map(t => t.methodName)).toEqual(['createEntity', 'readEntity', 'updateEntity']);
+      expect(tools.map((t) => t.methodName)).toEqual([
+        'createEntity',
+        'readEntity',
+        'updateEntity',
+      ]);
     });
   });
 
@@ -108,7 +117,7 @@ describe('@Tool Decorator', () => {
 
       const tools = TestManager.prototype.__tools__ || [];
       const inputSchema = tools[0].inputSchema;
-      
+
       expect(inputSchema.type).toBe('object');
       expect(inputSchema.properties).toBeDefined();
       expect(inputSchema.required).toBeDefined();
@@ -124,7 +133,7 @@ describe('@Tool Decorator', () => {
 
       const tools = TestManager.prototype.__tools__ || [];
       const outputSchema = tools[0].outputSchema;
-      
+
       expect(outputSchema.type).toBe('object');
       expect(outputSchema.properties).toBeDefined();
     });
@@ -133,21 +142,31 @@ describe('@Tool Decorator', () => {
   describe('Category Inference', () => {
     it('should infer DATA category for CRUD operations', () => {
       class TestManager {
-        @Tool() async createEntity(): Promise<any> { return {}; }
-        @Tool() async readEntity(): Promise<any> { return {}; }
-        @Tool() async updateEntity(): Promise<any> { return {}; }
-        @Tool() async deleteEntity(): Promise<any> { return {}; }
+        @Tool() async createEntity(): Promise<any> {
+          return {};
+        }
+        @Tool() async readEntity(): Promise<any> {
+          return {};
+        }
+        @Tool() async updateEntity(): Promise<any> {
+          return {};
+        }
+        @Tool() async deleteEntity(): Promise<any> {
+          return {};
+        }
       }
 
       const tools = TestManager.prototype.__tools__ || [];
-      tools.forEach(tool => {
+      tools.forEach((tool) => {
         expect(tool.category).toBe(ToolCategory.DATA);
       });
     });
 
     it('should infer SEARCH category for list operations', () => {
       class TestManager {
-        @Tool() async listEntities(): Promise<any[]> { return []; }
+        @Tool() async listEntities(): Promise<any[]> {
+          return [];
+        }
       }
 
       const tools = TestManager.prototype.__tools__ || [];
@@ -156,25 +175,35 @@ describe('@Tool Decorator', () => {
 
     it('should infer SEARCH category for search operations', () => {
       class TestManager {
-        @Tool() async searchChats(): Promise<any[]> { return []; }
-        @Tool() async findByTag(): Promise<any[]> { return []; }
-        @Tool() async queryWorkspaces(): Promise<any[]> { return []; }
+        @Tool() async searchChats(): Promise<any[]> {
+          return [];
+        }
+        @Tool() async findByTag(): Promise<any[]> {
+          return [];
+        }
+        @Tool() async queryWorkspaces(): Promise<any[]> {
+          return [];
+        }
       }
 
       const tools = TestManager.prototype.__tools__ || [];
-      tools.forEach(tool => {
+      tools.forEach((tool) => {
         expect(tool.category).toBe(ToolCategory.SEARCH);
       });
     });
 
     it('should default to UTILITY category for unknown operations', () => {
       class TestManager {
-        @Tool() async processData(): Promise<any> { return {}; }
-        @Tool() async calculateMetrics(): Promise<number> { return 0; }
+        @Tool() async processData(): Promise<any> {
+          return {};
+        }
+        @Tool() async calculateMetrics(): Promise<number> {
+          return 0;
+        }
       }
 
       const tools = TestManager.prototype.__tools__ || [];
-      tools.forEach(tool => {
+      tools.forEach((tool) => {
         expect(tool.category).toBe(ToolCategory.UTILITY);
       });
     });
@@ -183,13 +212,19 @@ describe('@Tool Decorator', () => {
   describe('Permission Inference', () => {
     it('should assign permissions to read operations', () => {
       class TestManager {
-        @Tool() async getEntity(): Promise<any> { return {}; }
-        @Tool() async listItems(): Promise<any[]> { return []; }
-        @Tool() async readData(): Promise<any> { return {}; }
+        @Tool() async getEntity(): Promise<any> {
+          return {};
+        }
+        @Tool() async listItems(): Promise<any[]> {
+          return [];
+        }
+        @Tool() async readData(): Promise<any> {
+          return {};
+        }
       }
 
       const tools = TestManager.prototype.__tools__ || [];
-      tools.forEach(tool => {
+      tools.forEach((tool) => {
         expect(tool.permissions).toBeDefined();
         expect(tool.permissions.level).toBe('auto_approve');
         expect(tool.permissions.sensitiveDataAccess).toBe(false);
@@ -199,12 +234,16 @@ describe('@Tool Decorator', () => {
 
     it('should assign permissions to write operations', () => {
       class TestManager {
-        @Tool() async createEntity(): Promise<any> { return {}; }
-        @Tool() async updateData(): Promise<any> { return {}; }
+        @Tool() async createEntity(): Promise<any> {
+          return {};
+        }
+        @Tool() async updateData(): Promise<any> {
+          return {};
+        }
       }
 
       const tools = TestManager.prototype.__tools__ || [];
-      tools.forEach(tool => {
+      tools.forEach((tool) => {
         expect(tool.permissions).toBeDefined();
         expect(tool.permissions.level).toBe('approve_once');
         expect(tool.permissions.sensitiveDataAccess).toBe(false);
@@ -219,7 +258,7 @@ describe('@Tool Decorator', () => {
       }
 
       const tools = TestManager.prototype.__tools__ || [];
-      tools.forEach(tool => {
+      tools.forEach((tool) => {
         expect(tool.permissions).toBeDefined();
         expect(tool.permissions.level).toBe('approve_once');
         expect(tool.permissions.sensitiveDataAccess).toBe(true);
@@ -231,46 +270,56 @@ describe('@Tool Decorator', () => {
   describe('Frequency and Complexity Inference', () => {
     it('should assign VERY_HIGH frequency to read operations', () => {
       class TestManager {
-        @Tool() async getEntity(): Promise<any> { return {}; }
-        @Tool() async listItems(): Promise<any[]> { return []; }
+        @Tool() async getEntity(): Promise<any> {
+          return {};
+        }
+        @Tool() async listItems(): Promise<any[]> {
+          return [];
+        }
       }
 
       const tools = TestManager.prototype.__tools__ || [];
-      tools.forEach(tool => {
+      tools.forEach((tool) => {
         expect(tool.frequency).toBe(ToolFrequency.VERY_HIGH);
       });
     });
 
     it('should assign HIGH frequency to create operations', () => {
       class TestManager {
-        @Tool() async createEntity(): Promise<any> { return {}; }
+        @Tool() async createEntity(): Promise<any> {
+          return {};
+        }
       }
 
       const tools = TestManager.prototype.__tools__ || [];
-      tools.forEach(tool => {
+      tools.forEach((tool) => {
         expect(tool.frequency).toBe(ToolFrequency.HIGH);
       });
     });
 
     it('should assign MEDIUM frequency to moderate operations', () => {
       class TestManager {
-        @Tool() async updateEntity(): Promise<any> { return {}; }
+        @Tool() async updateEntity(): Promise<any> {
+          return {};
+        }
       }
 
       const tools = TestManager.prototype.__tools__ || [];
-      tools.forEach(tool => {
+      tools.forEach((tool) => {
         expect(tool.frequency).toBe(ToolFrequency.MEDIUM);
       });
     });
 
     it('should assign SIMPLE complexity to simple operations', () => {
       class TestManager {
-        @Tool() async getEntity(): Promise<any> { return {}; }
+        @Tool() async getEntity(): Promise<any> {
+          return {};
+        }
         @Tool() async setFlag(): Promise<void> {}
       }
 
       const tools = TestManager.prototype.__tools__ || [];
-      tools.forEach(tool => {
+      tools.forEach((tool) => {
         expect(tool.complexity).toBe(ToolComplexity.SIMPLE);
       });
     });
@@ -284,8 +333,8 @@ describe('@Tool Decorator', () => {
           permissions: {
             level: 'approve_once',
             sensitiveDataAccess: true,
-            networkAccess: true
-          }
+            networkAccess: true,
+          },
         })
         async syncWithAPI(): Promise<any> {
           return {};
@@ -302,7 +351,7 @@ describe('@Tool Decorator', () => {
       class TestManager {
         @Tool({
           category: ToolCategory.SYSTEM,
-          frequency: ToolFrequency.LOW
+          frequency: ToolFrequency.LOW,
         })
         async customSync(): Promise<any> {
           return {};
