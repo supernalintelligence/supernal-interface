@@ -25,6 +25,12 @@ jobs:
         run: |
           cd core
           echo "🔍 Checking if package-lock.json is in sync with package.json..."
+          echo "Node.js version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          
+          # Clear npm cache to avoid stale cache issues
+          npm cache clean --force
+          
           if ! npm ci --dry-run > /dev/null 2>&1; then
             echo "❌ Core package-lock.json is out of sync with package.json"
             echo "💡 The following packages are missing from lock file:"
