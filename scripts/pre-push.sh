@@ -23,11 +23,11 @@ npm ci --silent
 echo "🔍 Running ESLint..."
 npm run lint
 
-# echo "🔧 Running TypeScript check..."
-# npx tsc --noEmit
+echo "🔧 Running TypeScript check..."
+npx tsc --noEmit
 
-# echo "🧪 Running tests..."
-# npm run test
+echo "🧪 Running tests..."
+npm run test
 
 echo "🏗️  Building package..."
 npm run build
@@ -43,18 +43,18 @@ if [ ! -f "dist/index.js" ]; then
     exit 1
 fi
 
-# echo "🎯 Building demo..."
-# cd demo
+echo "🎯 Building demo..."
+cd demo
 
-# echo "🔍 Checking demo package-lock.json sync..."
-# if ! npm ci --dry-run --silent > /dev/null 2>&1; then
-#     echo "❌ Demo package-lock.json is out of sync with package.json"
-#     echo "💡 Run 'cd demo && npm install' to fix this issue"
-#     exit 1
-# fi
+echo "🔍 Checking demo package-lock.json sync..."
+if ! npm ci --dry-run --silent > /dev/null 2>&1; then
+    echo "❌ Demo package-lock.json is out of sync with package.json"
+    echo "💡 Run 'cd demo && npm install' to fix this issue"
+    exit 1
+fi
 
-# npm ci --silent
-# npm run build
+npm ci --silent
+npm run build
 
 echo "✅ All pre-push checks passed!"
 echo "🚀 Ready to push to repository"
