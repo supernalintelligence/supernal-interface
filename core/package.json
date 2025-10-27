@@ -30,7 +30,7 @@
     "lint:fix": "eslint src --ext .ts --fix",
     "generate-tests": "ts-node src/cli/generate-tests.ts",
     "init-project": "ts-node src/cli/init.ts",
-    "prepare": "cd .. && husky install",
+    "prepare": "cd .. && (husky install 2>/dev/null || echo 'Husky not available (likely CI environment)')",
     "prepublishOnly": "npm run build && npm run test && npm run lint",
     "prepack": "npm run build",
     "version": "npm run build",
