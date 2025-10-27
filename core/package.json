@@ -1,6 +1,6 @@
 {
   "name": "@supernal-interface/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Universal AI Interface - Make any application AI-controllable and auto-testable",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -33,7 +33,7 @@
     "prepare": "cd .. && husky install",
     "prepublishOnly": "npm run build && npm run test && npm run lint",
     "prepack": "npm run build",
-    "version": "npm run build && git add -A dist",
+    "version": "npm run build",
     "postversion": "git push && git push --tags",
     "pre-push": "npm run lint",
     "release:patch": "npm version patch && npm publish",
