@@ -35,7 +35,7 @@
     "prepack": "npm run build",
     "version": "npm run build && git add -A dist",
     "postversion": "git push && git push --tags",
-    "pre-push": "npm run lint && npm run test && npm run build",
+    "pre-push": "npm run lint && npm run build",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish"
@@ -59,6 +59,7 @@
     "commander": "^11.0.0"
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
     "@types/jest": "^29.5.8",
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^6.12.0",

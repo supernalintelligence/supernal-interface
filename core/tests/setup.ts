@@ -4,14 +4,7 @@
  * Global test setup for Supernal Interface core package tests.
  */
 
-// Extend Jest matchers if needed
-declare global {
-  namespace jest {
-    interface Matchers<R> {
-      // Add custom matchers here if needed
-    }
-  }
-}
+import { beforeAll, afterAll, jest } from '@jest/globals';
 
 // Global test setup
 beforeAll(() => {
