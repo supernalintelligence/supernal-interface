@@ -1,6 +1,6 @@
 {
   "name": "@supernal/interface-core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Universal AI Interface - Make any application AI-controllable and auto-testable",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
