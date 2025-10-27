@@ -1,7 +1,7 @@
 /**
  * Supernal AI Interface - Enhanced Tool Decorator System
  *
- * Extends supernal-command's Tool decorator with AI safety controls and universal capabilities.
+ * Provides comprehensive tool registration with AI safety controls and universal capabilities.
  * Automatically generates tool schemas with AI control vs testing distinction.
  */
 
@@ -16,7 +16,7 @@ const DEBUG = false;
 console.log('Logging for Tool is: ', DEBUG);
 
 export interface ToolConfig {
-  // Original supernal-command fields
+  // Core tool fields
   name?: string;
   description?: string;
   category?: ToolCategory;
@@ -69,13 +69,13 @@ export interface ToolConfig {
     modal?: string; // Modal/dialog context
   };
 
-  // DEPRECATED (for backward compatibility)
+  // Legacy fields
   testId?: string; // @deprecated - use toolId instead
   uiSelector?: string; // @deprecated - use selector instead
 }
 
 export interface ToolMetadata {
-  // Original supernal-command fields
+  // Core tool fields
   methodName: string;
   name: string;
   description: string;
@@ -126,7 +126,7 @@ export interface ToolMetadata {
     modal?: string;
   };
 
-  // DEPRECATED (for backward compatibility)
+  // Legacy fields
   testId?: string; // @deprecated - use toolId
   uiSelector?: string; // @deprecated - use selector
 }
@@ -142,17 +142,17 @@ export interface ToolMetadata {
  * @param config Optional configuration to override defaults
  */
 export function Tool(config: ToolConfig = {}) {
-  return function (target: any, propertyKey?: string | symbol, descriptor?: PropertyDescriptor) {
+  return function(target: any, propertyKey?: string | symbol, descriptor?: PropertyDescriptor) {
     // Handle standalone function case
     if (typeof target === 'function' && !propertyKey) {
       return decorateStandaloneFunction(target, config);
     }
-
-    // Handle class method case
+    
+    // Handle class method case (legacy decorators)
     if (propertyKey && descriptor) {
       return decorateClassMethod(target, propertyKey, descriptor, config);
     }
-
+    
     throw new Error('Tool decorator can only be applied to class methods or standalone functions');
   };
 }
@@ -211,12 +211,12 @@ function decorateStandaloneFunction(func: Function, config: ToolConfig) {
     // Origin tracking
     origin: config.origin,
 
-    // DEPRECATED (backward compatibility)
+    // Legacy fields
     testId: config.testId || config.toolId || generateToolId(providerName, functionName),
     uiSelector: config.uiSelector || config.selector,
   };
 
-  // Register with unified ToolRegistry
+  // Register with ToolRegistry
   try {
     const { ToolRegistry } = require('../registry/ToolRegistry');
     ToolRegistry.registerTool(providerName, functionName, toolMetadata);
@@ -244,14 +244,38 @@ function decorateClassMethod(
 ) {
   // Ensure propertyKey is a string for processing
   const methodName = typeof propertyKey === 'string' ? propertyKey : String(propertyKey);
-  const className = target.constructor.name;
+  
+  // In legacy decorators, target is the class prototype, so we can get the class name directly
+  const className = target.constructor.name || 'UnknownClass';
+  // Generate and register the tool metadata
+  const toolMetadata: ToolMetadata = generateToolMetadata(className, methodName, config, target);
+  
+  // Register with ToolRegistry
+  try {
+    const { ToolRegistry } = require('../registry/ToolRegistry');
+    ToolRegistry.registerTool(className, methodName, toolMetadata);
+  } catch (error) {
+    console.error('Failed to register tool:', error);
+  }
 
-  // Generate enhanced tool metadata with AI safety controls
-  const toolMetadata: ToolMetadata = {
-    // Original supernal-command fields
+  DEBUG && console.log(`[Tool] Registered tool: ${toolMetadata.name} (${toolMetadata.category})`);
+  
+  // Also register on the class prototype for direct access
+  if (!target.__tools__) {
+    target.__tools__ = [];
+  }
+  target.__tools__.push(toolMetadata);
+  
+  return descriptor;
+}
+
+// Helper function to generate tool metadata
+function generateToolMetadata(className: string, methodName: string, config: ToolConfig, target: any): ToolMetadata {
+  return {
+    // Core fields
     methodName: methodName,
-    name: config.name || formatMethodName(propertyKey),
-    description: config.description || formatMethodName(propertyKey),
+    name: config.name || formatMethodName(methodName),
+    description: config.description || formatMethodName(methodName),
     category: config.category || inferCategoryFromMethodName(methodName),
     inputSchema: config.inputSchema || generateBasicInputSchema(),
     outputSchema: config.outputSchema || generateBasicOutputSchema(),
@@ -264,7 +288,7 @@ function decorateClassMethod(
     frequency: config.frequency || inferFrequency(methodName),
     complexity: config.complexity || ToolComplexity.SIMPLE,
 
-    // IMPROVED: Better identifiers
+    // Identifiers
     toolId: config.toolId || generateToolId(className, methodName),
     elementId: config.elementId,
     selector: config.selector,
@@ -279,14 +303,14 @@ function decorateClassMethod(
     executionContext: config.executionContext || inferExecutionContext(methodName),
     mockData: config.mockData,
 
-    // AI Control vs Testing distinction - SAFE DEFAULTS
+    // AI Control vs Testing distinction
     toolType: config.toolType || inferToolType(methodName),
     aiEnabled: config.aiEnabled || false, // Default: test-only
     dangerLevel: config.dangerLevel || inferDangerLevel(methodName),
     requiresApproval:
       config.requiresApproval || shouldRequireApproval(methodName, config.dangerLevel),
 
-    // Testing integration - DEFAULTS
+    // Testing integration
     generateSimulation: config.generateSimulation ?? true,
     generateStories: config.generateStories ?? true,
     elementType: config.elementType || inferElementType(methodName),
@@ -294,27 +318,7 @@ function decorateClassMethod(
 
     // Origin tracking
     origin: config.origin,
-
-    // DEPRECATED (backward compatibility)
-    testId: config.testId || config.toolId || generateToolId(className, methodName),
-    uiSelector: config.uiSelector || config.selector,
   };
-
-  // Register tool metadata on the class prototype (for supernal-command compatibility)
-  if (!target.constructor.prototype.__tools__) {
-    target.constructor.prototype.__tools__ = [];
-  }
-  target.constructor.prototype.__tools__.push(toolMetadata);
-
-  // Register with ToolRegistry (simplified - no execution bundling)
-  try {
-    const { ToolRegistry } = require('../registry/ToolRegistry');
-    ToolRegistry.registerTool(target.constructor.name, methodName, toolMetadata);
-  } catch (error) {
-    console.error('Failed to register tool:', error);
-  }
-
-  DEBUG && console.log(`[Tool] Registered tool: ${toolMetadata.name} (${toolMetadata.category})`);
 }
 
 /**
