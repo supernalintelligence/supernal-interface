@@ -16,7 +16,7 @@ export {
   isToolProvider,
 } from './decorators/ToolProvider';
 
-// Registry system (simplified - no execution bundling)
+// Registry system
 export { ToolRegistry } from './registry/ToolRegistry';
 
 // Test generation

@@ -7,7 +7,7 @@
 
 import { Page } from '@playwright/test';
 import { ToolMetadata } from '../decorators/Tool';
-import { UniversalExecutionContext, UniversalToolResult } from '../registry/UniversalToolRegistry';
+import { UniversalExecutionContext, UniversalToolResult } from '../registry/ToolRegistry';
 
 export class PlaywrightExecutor {
   constructor(private page: Page) {}

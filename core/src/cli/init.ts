@@ -319,14 +319,14 @@ export class UserProvider {
     await fs.writeFile(path.join(outputDir, 'src/providers/UserProvider.ts'), exampleProvider);
 
     // Main index file
-    const indexFile = `import { UniversalToolRegistry } from '@supernal-interface/core';
+    const indexFile = `import { ToolRegistry } from '@supernal-interface/core';
 import { UserProvider } from './providers/UserProvider';
 
 // Initialize providers
 const userProvider = new UserProvider();
 
 // Register providers with the registry
-UniversalToolRegistry.registerProvider('UserProvider', userProvider);
+ToolRegistry.registerProvider('UserProvider', userProvider);
 
 // Export for use in other modules
 export { userProvider };
@@ -334,7 +334,7 @@ export * from './providers/UserProvider';
 
 // Log initialization
 console.log('🚀 Supernal Interface initialized');
-console.log('📊 Registry stats:', UniversalToolRegistry.getStats());`;
+console.log('📊 Registry stats:', ToolRegistry.getStats());`;
 
     await fs.writeFile(path.join(outputDir, 'src/index.ts'), indexFile);
   }
@@ -344,13 +344,13 @@ console.log('📊 Registry stats:', UniversalToolRegistry.getStats());`;
    */
   private static async generateSetupFiles(outputDir: string): Promise<void> {
     // Test setup
-    const testSetup = `import { UniversalToolRegistry } from '@supernal-interface/core';
+    const testSetup = `import { ToolRegistry } from '@supernal-interface/core';
 import { UserProvider } from '../src/providers/UserProvider';
 
 // Setup test environment
 beforeAll(() => {
   const userProvider = new UserProvider();
-  UniversalToolRegistry.registerProvider('UserProvider', userProvider);
+  ToolRegistry.registerProvider('UserProvider', userProvider);
 });
 
 // Clean up after tests
@@ -362,7 +362,7 @@ afterAll(() => {
 
     // Test generation script
     const generateScript = `import { TestGenerator } from '@supernal-interface/core';
-import { UniversalToolRegistry } from '@supernal-interface/core';
+import { ToolRegistry } from '@supernal-interface/core';
 import '../src/index'; // Initialize providers
 
 async function generateTests() {
@@ -377,7 +377,7 @@ async function generateTests() {
   await TestGenerator.writeTestFiles(tests, './tests/generated');
   
   console.log(\`✅ Generated \${tests.size} test files\`);
-  console.log('📊 Registry stats:', UniversalToolRegistry.getStats());
+  console.log('📊 Registry stats:', ToolRegistry.getStats());
 }
 
 generateTests().catch(console.error);`;
@@ -385,14 +385,14 @@ generateTests().catch(console.error);`;
     await fs.writeFile(path.join(outputDir, 'scripts/generate-tests.ts'), generateScript);
 
     // Documentation generation script
-    const docsScript = `import { UniversalToolRegistry } from '@supernal-interface/core';
+    const docsScript = `import { ToolRegistry } from '@supernal-interface/core';
 import * as fs from 'fs/promises';
 import '../src/index'; // Initialize providers
 
 async function generateDocs() {
   console.log('📚 Generating documentation...');
   
-  const docs = UniversalToolRegistry.generateDocumentation();
+  const docs = ToolRegistry.generateDocumentation();
   await fs.writeFile('./docs/TOOLS.md', docs);
   
   console.log('✅ Documentation generated: ./docs/TOOLS.md');

@@ -5,7 +5,7 @@
  * Parses human language and maps to appropriate tools.
  */
 
-import { UniversalToolRegistry } from '../registry/UniversalToolRegistry';
+import { ToolRegistry } from '../registry/ToolRegistry';
 import { ToolMetadata } from '../decorators/Tool';
 
 export interface ChatQuery {
@@ -69,7 +69,7 @@ export class UniversalChatInterface {
 
       // Check if approval is required
       if (tool.requiresApproval) {
-        const approval = await UniversalToolRegistry.requestApproval(toolKey, parameters);
+        const approval = await ToolRegistry.requestApproval(toolKey, parameters);
 
         return {
           success: false,
@@ -81,7 +81,7 @@ export class UniversalChatInterface {
       }
 
       // Execute the tool
-      const result = await UniversalToolRegistry.executeForAI(toolKey, parameters);
+      const result = await ToolRegistry.executeForAI(toolKey, parameters);
 
       if (result.success) {
         return {
@@ -110,7 +110,7 @@ export class UniversalChatInterface {
    */
   private findMatchingTools(query: string): ToolMetadata[] {
     const queryLower = query.toLowerCase();
-    const tools = Array.from(UniversalToolRegistry.getAllTools().values());
+    const tools = Array.from(ToolRegistry.getAllTools().values());
 
     // Score each tool based on relevance
     const scoredTools = tools.map((tool) => ({
@@ -264,7 +264,7 @@ export class UniversalChatInterface {
    * Generate helpful suggestions
    */
   private generateSuggestions(): string[] {
-    const aiTools = UniversalToolRegistry.getAIEnabledTools();
+    const aiTools = ToolRegistry.getAIEnabledTools();
     const suggestions: string[] = [];
 
     // Get examples from top AI-enabled tools
@@ -290,10 +290,10 @@ export class UniversalChatInterface {
    * Get help information about available tools
    */
   getHelp(): ChatResponse {
-    const aiTools = UniversalToolRegistry.getAIEnabledTools();
-    const stats = UniversalToolRegistry.getStats();
+    const aiTools = ToolRegistry.getAIEnabledTools();
+    const stats = ToolRegistry.getStats();
 
-    let message = `I have access to ${stats.aiEnabled} AI-enabled tools out of ${stats.totalTools} total tools.\n\n`;
+    let message = `I have access to ${stats.aiEnabled} AI-enabled tools out of ${stats.total} total tools.\n\n`;
     message += 'Here are some things you can ask me to do:\n\n';
 
     // Group tools by category

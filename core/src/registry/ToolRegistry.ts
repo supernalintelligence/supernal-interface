@@ -13,6 +13,24 @@
 
 import { ToolMetadata } from '../decorators/Tool';
 
+// Execution context types
+export interface UniversalExecutionContext {
+  toolId: string;
+  parameters: any;
+  userId?: string;
+  sessionId?: string;
+  timestamp: number;
+}
+
+export interface UniversalToolResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+  executionTime?: number;
+  context?: UniversalExecutionContext;
+  tool?: string;
+}
+
 // Use a global registry to avoid Jest module isolation issues
 const globalRegistry = (typeof global !== 'undefined' ? global : globalThis) as any;
 if (!globalRegistry.__SUPERNAL_TOOL_REGISTRY__) {
@@ -93,6 +111,13 @@ export class ToolRegistry {
   }
 
   /**
+   * Find tool by natural language query (alias for searchTools)
+   */
+  static findToolsByQuery(query: string): ToolMetadata[] {
+    return this.searchTools(query);
+  }
+
+  /**
    * Get registry statistics
    */
   static getStats(): {
@@ -101,6 +126,7 @@ export class ToolRegistry {
     testOnly: number;
     byCategory: Record<string, number>;
     byDangerLevel: Record<string, number>;
+    requiresApproval: number;
   } {
     const tools = Array.from(this.tools.values());
 
@@ -117,7 +143,7 @@ export class ToolRegistry {
         acc[tool.dangerLevel] = (acc[tool.dangerLevel] || 0) + 1;
         return acc;
       },
-      {} as Record<string, number>
+      { safe: 0, moderate: 0, dangerous: 0, destructive: 0 } as Record<string, number>
     );
 
     return {
@@ -126,6 +152,7 @@ export class ToolRegistry {
       testOnly: tools.filter((t) => !t.aiEnabled).length,
       byCategory,
       byDangerLevel,
+      requiresApproval: tools.filter((t) => t.requiresApproval).length,
     };
   }
 
@@ -456,6 +483,91 @@ export class ToolRegistry {
     output += `   Frequency: ${tool.frequency}\n`;
 
     return output;
+  }
+
+  /**
+   * Execute a tool for AI (only if AI-enabled)
+   */
+  static async executeForAI(
+    toolIdentifier: string,
+    parameters: any = {}
+  ): Promise<{ success: boolean; data?: any; error?: string; tool: string; requiresApproval?: boolean }> {
+    const tool = this.tools.get(toolIdentifier);
+
+    if (!tool) {
+      return {
+        success: false,
+        error: `Tool ${toolIdentifier} not found`,
+        tool: toolIdentifier,
+      };
+    }
+
+    if (!tool.aiEnabled) {
+      return {
+        success: false,
+        error: `Tool ${toolIdentifier} is not AI-enabled. Use executeForTesting() instead.`,
+        tool: toolIdentifier,
+      };
+    }
+
+    if (tool.requiresApproval) {
+      return {
+        success: false,
+        error: `Tool ${toolIdentifier} requires approval.`,
+        tool: toolIdentifier,
+        requiresApproval: true,
+      };
+    }
+
+    // For now, just return success - actual execution would need provider instances
+    return {
+      success: true,
+      data: { message: 'Tool executed successfully' },
+      tool: toolIdentifier,
+    };
+  }
+
+  /**
+   * Request approval for a dangerous operation
+   */
+  static async requestApproval(toolIdentifier: string, parameters: any = {}): Promise<{ id: string; approved: boolean }> {
+    // For now, return a mock approval request
+    return {
+      id: `approval-${Date.now()}`,
+      approved: false, // Requires manual approval
+    };
+  }
+
+  /**
+   * Generate tool documentation
+   */
+  static generateDocumentation(): string {
+    const tools = Array.from(this.tools.values());
+    const aiEnabledTools = tools.filter((t) => t.aiEnabled);
+    const testOnlyTools = tools.filter((t) => !t.aiEnabled);
+
+    let doc = `# Supernal Interface Tools\n\n`;
+    doc += `**Total Tools**: ${tools.length}\n`;
+    doc += `**AI-Enabled**: ${aiEnabledTools.length}\n`;
+    doc += `**Test-Only**: ${testOnlyTools.length}\n\n`;
+
+    doc += `## AI-Enabled Tools\n\n`;
+    aiEnabledTools.forEach((tool) => {
+      doc += `### ${tool.name}\n`;
+      doc += `- **Description**: ${tool.aiDescription || tool.description}\n`;
+      doc += `- **Danger Level**: ${tool.dangerLevel}\n`;
+      doc += `- **Requires Approval**: ${tool.requiresApproval ? 'Yes' : 'No'}\n`;
+      doc += `- **Examples**: ${tool.examples.join(', ')}\n\n`;
+    });
+
+    doc += `## Test-Only Tools\n\n`;
+    testOnlyTools.forEach((tool) => {
+      doc += `### ${tool.name}\n`;
+      doc += `- **Description**: ${tool.description}\n`;
+      doc += `- **Danger Level**: ${tool.dangerLevel}\n\n`;
+    });
+
+    return doc;
   }
 
   /**

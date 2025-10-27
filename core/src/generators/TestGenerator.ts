@@ -6,7 +6,7 @@
  */
 
 import { ToolMetadata } from '../decorators/Tool';
-import { UniversalToolRegistry } from '../registry/UniversalToolRegistry';
+import { ToolRegistry } from '../registry/ToolRegistry';
 
 export interface TestGenerationOptions {
   outputDir?: string;
@@ -22,7 +22,7 @@ export class TestGenerator {
    */
   static generateAllTests(options: TestGenerationOptions = {}): Map<string, string> {
     const tests = new Map<string, string>();
-    const tools = UniversalToolRegistry.getAllTools();
+    const tools = ToolRegistry.getAllTools();
 
     // Group tools by provider class
     const providerGroups = new Map<string, ToolMetadata[]>();
@@ -68,7 +68,7 @@ export class TestGenerator {
     let test = this.generateTestHeader(className, 'Unit Tests', framework);
 
     // Import statements
-    test += `import { UniversalToolRegistry } from '../src/registry/UniversalToolRegistry';\n`;
+    test += `import { ToolRegistry } from '../src/registry/ToolRegistry';\n`;
     test += `import { ${className} } from '../src/providers/${className}';\n\n`;
 
     // Setup
@@ -77,7 +77,7 @@ export class TestGenerator {
 
     test += `  beforeEach(() => {\n`;
     test += `    provider = new ${className}();\n`;
-    test += `    UniversalToolRegistry.registerProvider('${className}', provider);\n`;
+    test += `    ToolRegistry.registerProvider('${className}', provider);\n`;
     test += `  });\n\n`;
 
     // Generate tests for each tool
@@ -105,7 +105,7 @@ export class TestGenerator {
 
     let test = this.generateTestHeader(className, 'Integration Tests', framework);
 
-    test += `import { UniversalToolRegistry } from '../src/registry/UniversalToolRegistry';\n`;
+    test += `import { ToolRegistry } from '../src/registry/ToolRegistry';\n`;
     test += `import { ${className} } from '../src/providers/${className}';\n\n`;
 
     test += `describe('${className} - Integration Tests', () => {\n`;
@@ -113,19 +113,19 @@ export class TestGenerator {
 
     test += `  beforeAll(async () => {\n`;
     test += `    provider = new ${className}();\n`;
-    test += `    UniversalToolRegistry.registerProvider('${className}', provider);\n`;
+    test += `    ToolRegistry.registerProvider('${className}', provider);\n`;
     test += `  });\n\n`;
 
     // Test registry integration
     test += `  describe('Registry Integration', () => {\n`;
     test += `    test('should register all tools correctly', () => {\n`;
-    test += `      const stats = UniversalToolRegistry.getStats();\n`;
+    test += `      const stats = ToolRegistry.getStats();\n`;
     test += `      expect(stats.totalTools).toBeGreaterThan(0);\n`;
     test += `    });\n\n`;
 
     test += `    test('should categorize tools by AI safety', () => {\n`;
-    test += `      const aiTools = UniversalToolRegistry.getAIEnabledTools();\n`;
-    test += `      const stats = UniversalToolRegistry.getStats();\n`;
+    test += `      const aiTools = ToolRegistry.getAIEnabledTools();\n`;
+    test += `      const stats = ToolRegistry.getStats();\n`;
     test += `      expect(stats.aiEnabled + stats.testOnly).toBe(stats.totalTools);\n`;
     test += `    });\n`;
     test += `  });\n\n`;
@@ -140,7 +140,7 @@ export class TestGenerator {
     if (aiEnabledTools.length > 0) {
       const tool = aiEnabledTools[0];
       test += `    test('should execute AI-enabled tools via executeForAI', async () => {\n`;
-      test += `      const result = await UniversalToolRegistry.executeForAI('${className}.${tool.methodName}', {});\n`;
+      test += `      const result = await ToolRegistry.executeForAI('${className}.${tool.methodName}', {});\n`;
       test += `      expect(result.success).toBe(true);\n`;
       test += `    });\n\n`;
     }
@@ -148,7 +148,7 @@ export class TestGenerator {
     if (testOnlyTools.length > 0) {
       const tool = testOnlyTools[0];
       test += `    test('should reject test-only tools via executeForAI', async () => {\n`;
-      test += `      const result = await UniversalToolRegistry.executeForAI('${className}.${tool.methodName}', {});\n`;
+      test += `      const result = await ToolRegistry.executeForAI('${className}.${tool.methodName}', {});\n`;
       test += `      expect(result.success).toBe(false);\n`;
       test += `      expect(result.error).toContain('not AI-enabled');\n`;
       test += `    });\n\n`;
@@ -157,11 +157,11 @@ export class TestGenerator {
     if (approvalTools.length > 0) {
       const tool = approvalTools[0];
       test += `    test('should handle approval workflow for dangerous tools', async () => {\n`;
-      test += `      const approval = await UniversalToolRegistry.requestApproval('${className}.${tool.methodName}', {});\n`;
+      test += `      const approval = await ToolRegistry.requestApproval('${className}.${tool.methodName}', {});\n`;
       test += `      expect(approval.id).toBeDefined();\n`;
       test += `      expect(approval.status).toBe('pending');\n\n`;
-      test += `      UniversalToolRegistry.approveRequest(approval.id, 'test-user');\n`;
-      test += `      const result = await UniversalToolRegistry.executeWithApproval(approval.id);\n`;
+      test += `      ToolRegistry.approveRequest(approval.id, 'test-user');\n`;
+      test += `      const result = await ToolRegistry.executeWithApproval(approval.id);\n`;
       test += `      expect(result.success).toBe(true);\n`;
       test += `    });\n\n`;
     }
@@ -171,7 +171,7 @@ export class TestGenerator {
     // Test natural language queries
     test += `  describe('Natural Language Interface', () => {\n`;
     test += `    test('should find tools by natural language query', () => {\n`;
-    test += `      const results = UniversalToolRegistry.findToolsByQuery('get users');\n`;
+    test += `      const results = ToolRegistry.findToolsByQuery('get users');\n`;
     test += `      expect(results.length).toBeGreaterThan(0);\n`;
     test += `    });\n`;
     test += `  });\n`;
@@ -192,7 +192,7 @@ export class TestGenerator {
     let test = `/**\n * ${className} - End-to-End Tests\n * Auto-generated by Supernal Interface\n */\n\n`;
 
     test += `import { test, expect, Page } from '@playwright/test';\n`;
-    test += `import { UniversalToolRegistry } from '../src/registry/UniversalToolRegistry';\n`;
+    test += `import { ToolRegistry } from '../src/registry/ToolRegistry';\n`;
     test += `import { ${className} } from '../src/providers/${className}';\n\n`;
 
     test += `test.describe('${className} - E2E Tests', () => {\n`;
@@ -200,7 +200,7 @@ export class TestGenerator {
 
     test += `  test.beforeAll(async () => {\n`;
     test += `    provider = new ${className}();\n`;
-    test += `    UniversalToolRegistry.registerProvider('${className}', provider);\n`;
+    test += `    ToolRegistry.registerProvider('${className}', provider);\n`;
     test += `  });\n\n`;
 
     // Generate UI interaction tests for UI tools
@@ -239,7 +239,7 @@ export class TestGenerator {
 
     // Basic functionality test
     test += `    test('should execute successfully with valid parameters', async () => {\n`;
-    test += `      const result = await UniversalToolRegistry.executeForTesting('${tool.providerClass}.${tool.methodName}', {});\n`;
+    test += `      const result = await ToolRegistry.executeForTesting('${tool.providerClass}.${tool.methodName}', {});\n`;
     test += `      expect(result.success).toBe(true);\n`;
     test += `      expect(result.executionTime).toBeGreaterThan(0);\n`;
     test += `    });\n\n`;
@@ -247,7 +247,7 @@ export class TestGenerator {
     // AI safety test
     if (tool.aiEnabled) {
       test += `    test('should be executable by AI (aiEnabled: true)', async () => {\n`;
-      test += `      const result = await UniversalToolRegistry.executeForAI('${tool.providerClass}.${tool.methodName}', {});\n`;
+      test += `      const result = await ToolRegistry.executeForAI('${tool.providerClass}.${tool.methodName}', {});\n`;
       if (tool.requiresApproval) {
         test += `      expect(result.success).toBe(false);\n`;
         test += `      expect(result.requiresApproval).toBe(true);\n`;
@@ -257,7 +257,7 @@ export class TestGenerator {
       test += `    });\n\n`;
     } else {
       test += `    test('should reject AI execution (aiEnabled: false)', async () => {\n`;
-      test += `      const result = await UniversalToolRegistry.executeForAI('${tool.providerClass}.${tool.methodName}', {});\n`;
+      test += `      const result = await ToolRegistry.executeForAI('${tool.providerClass}.${tool.methodName}', {});\n`;
       test += `      expect(result.success).toBe(false);\n`;
       test += `      expect(result.error).toContain('not AI-enabled');\n`;
       test += `    });\n\n`;
@@ -265,7 +265,7 @@ export class TestGenerator {
 
     // Metadata test
     test += `    test('should have correct metadata', () => {\n`;
-    test += `      const tools = UniversalToolRegistry.getAllTools();\n`;
+    test += `      const tools = ToolRegistry.getAllTools();\n`;
     test += `      const toolMeta = tools.get('${tool.providerClass}.${tool.methodName}');\n`;
     test += `      \n`;
     test += `      expect(toolMeta).toBeDefined();\n`;
@@ -287,7 +287,7 @@ export class TestGenerator {
     let test = `  describe('Safety Controls', () => {\n`;
 
     test += `    test('should enforce AI safety defaults', () => {\n`;
-    test += `      const stats = UniversalToolRegistry.getStats();\n`;
+    test += `      const stats = ToolRegistry.getStats();\n`;
     test += `      \n`;
     test += `      // Verify dangerous tools require approval\n`;
     test += `      expect(stats.byDangerLevel.dangerous).toBeGreaterThanOrEqual(0);\n`;
@@ -303,7 +303,7 @@ export class TestGenerator {
       test += `      const destructiveTool = '${destructiveTools[0].providerClass}.${destructiveTools[0].methodName}';\n`;
       test += `      \n`;
       test += `      // Should fail without approval\n`;
-      test += `      const result = await UniversalToolRegistry.executeForAI(destructiveTool, {});\n`;
+      test += `      const result = await ToolRegistry.executeForAI(destructiveTool, {});\n`;
       test += `      expect(result.success).toBe(false);\n`;
       test += `    });\n\n`;
     }

@@ -6,7 +6,7 @@
  */
 
 import { ToolMetadata } from '../decorators/Tool';
-import { UniversalExecutionContext, UniversalToolResult } from '../registry/UniversalToolRegistry';
+import { UniversalExecutionContext, UniversalToolResult } from '../registry/ToolRegistry';
 
 export class DOMExecutor {
   /**

@@ -63,15 +63,24 @@ export default function LandingPage() {
   }, [currentPage]);
 
   useEffect(() => {
-    // Get available tools for the tool list - group by category
+    // Get available tools and sort them to match widget order
     const tools = Array.from(ToolRegistry.getAllTools().values())
       .filter(t => t.aiEnabled)
       .sort((a, b) => {
-        // Sort by category first, then by name
-        if (a.category !== b.category) {
-          return a.category.localeCompare(b.category);
-        }
-        return a.name.localeCompare(b.name);
+        // Custom order to match widget layout: Buttons, Checkboxes, Radio, Select, Form
+        const order = {
+          'Open Main Menu': 1,
+          'Close Main Menu': 2,
+          'Toggle Feature': 3,
+          'Toggle Notifications': 4,
+          'Set Priority': 5,
+          'Set Status': 6,
+          'Set Theme': 7,
+          'Submit Form': 8
+        };
+        const orderA = order[a.name as keyof typeof order] || 999;
+        const orderB = order[b.name as keyof typeof order] || 999;
+        return orderA - orderB;
       });
     setAvailableTools(tools);
   }, []);
@@ -553,8 +562,70 @@ async saveData(): Promise<{
 
           {currentPage === 'demo' && (
             <>
+              {/* Simple Explanation */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 text-center">
+                <h2 className="text-xl font-bold text-gray-800 mb-2">🤖 AI Controls Your Website</h2>
+                <p className="text-gray-600">Click widgets below, then see how AI can do the same thing</p>
+              </div>
+
               {/* Widget Examples - Component Zoo */}
+              <div className="mb-2">
+                <div className="bg-blue-600 text-white px-4 py-2 rounded-t-lg">
+                  <h3 className="text-lg font-semibold">📱 YOUR WIDGETS</h3>
+                  <p className="text-sm opacity-90">Try clicking these - they work normally</p>
+                </div>
+              </div>
               <InteractiveWidgets onWidgetInteraction={handleWidgetInteraction} />
+
+              {/* Available Tool Methods - 4 Column Layout */}
+              <div className="mb-2">
+                <div className="bg-green-600 text-white px-4 py-2 rounded-tlg">
+                  <h3 className="text-lg font-semibold">🤖 AI TOOLS</h3>
+                  <p className="text-sm opacity-90">Click to see AI control the widgets above</p>
+                </div>
+              </div>
+              <div className="bg-white rounded-b-lg shadow p-6 mb-6">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {availableTools.map((tool) => (
+                    <div key={tool.testId} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-semibold text-gray-800 text-sm">{tool.name}</h4>
+                        <div className="flex items-center space-x-1">
+                          <span className={`text-xs px-2 py-1 rounded ${
+                            tool.dangerLevel === 'safe' ? 'bg-green-100 text-green-800' :
+                            tool.dangerLevel === 'moderate' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {tool.dangerLevel}
+                          </span>
+                          {tool.requiresApproval && (
+                            <span className="text-xs px-2 py-1 bg-orange-100 text-orange-800 rounded">
+                              ⚠️
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">{tool.description}</p>
+                      
+                      <div className="mb-3">
+                        <code className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-800">
+                          "{tool.examples[0]}"
+                        </code>
+                      </div>
+                      
+                      <button
+                        onClick={() => executeToolDirectly(tool)}
+                        className="w-full px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors font-medium"
+                        data-testid={`execute-${tool.testId}`}
+                      >
+                        Execute
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {/* Quick Test Button */}
           <div className="bg-white rounded-lg shadow p-4 mb-6">
@@ -616,54 +687,6 @@ async saveData(): Promise<{
             addMessage(`🧪 Test Results: ${summary.passedTests}/${summary.totalTests} passed (${summary.passRate.toFixed(1)}%)`, 'system');
           }} />
 
-          {/* Available Tool Methods - 3 Column Layout */}
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">🔧 Available @Tool Methods</h3>
-            <p className="text-sm text-gray-600 mb-6">
-              Click any tool to execute it directly (simulates AI command execution):
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {availableTools.map((tool) => (
-                <div key={tool.testId} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start mb-3">
-                    <h4 className="font-semibold text-gray-800 text-sm">{tool.name}</h4>
-                    <div className="flex items-center space-x-1">
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        tool.dangerLevel === 'safe' ? 'bg-green-100 text-green-800' :
-                        tool.dangerLevel === 'moderate' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {tool.dangerLevel}
-                      </span>
-                      {tool.requiresApproval && (
-                        <span className="text-xs px-2 py-1 bg-orange-100 text-orange-800 rounded">
-                          ⚠️
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <p className="text-xs text-gray-600 mb-3 line-clamp-2">{tool.description}</p>
-                  
-                  <div className="mb-3">
-                    <div className="text-xs text-gray-500 mb-1">Example command:</div>
-                    <code className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-800">
-                      "{tool.examples[0]}"
-                    </code>
-                  </div>
-                  
-                  <button
-                    onClick={() => executeToolDirectly(tool)}
-                    className="w-full px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-medium"
-                    data-testid={`execute-${tool.testId}`}
-                  >
-                    Execute Tool
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
 
 
               {/* How It Works - Quick Overview */}
