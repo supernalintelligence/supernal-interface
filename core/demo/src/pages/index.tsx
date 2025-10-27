@@ -1377,6 +1377,54 @@ results.forEach(test => {
           )}
         </div>
 
+        {/* Professional Footer */}
+        <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-8 mt-12">
+          <div className="max-w-6xl mx-auto px-4 text-center">
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold mb-2">Powered by Supernal Intelligence</h3>
+              <p className="text-gray-300 mb-4">Creating Memory for our Future</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-gray-800 rounded-lg p-4">
+                <h4 className="text-lg font-semibold mb-2 text-blue-400">🧠 Supernal Intelligence</h4>
+                <p className="text-gray-300 text-sm mb-3">
+                  Next-generation AI platform for intelligent automation and decision-making
+                </p>
+                <a 
+                  href="https://supernal.ai" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  Visit supernal.ai →
+                </a>
+              </div>
+              
+              <div className="bg-gray-800 rounded-lg p-4">
+                <h4 className="text-lg font-semibold mb-2 text-green-400">⚡ Supernal Coding</h4>
+                <p className="text-gray-300 text-sm mb-3">
+                  AI-powered development tools and frameworks for building intelligent applications
+                </p>
+                <a 
+                  href="https://coding.supernal.ai" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-green-400 hover:text-green-300 transition-colors"
+                >
+                  Visit coding.supernal.ai →
+                </a>
+              </div>
+            </div>
+            
+            <div className="border-t border-gray-700 pt-4">
+              <p className="text-gray-400 text-sm">
+                © 2024 Supernal Intelligence. Built with @supernal-interface/core using Supernal Coding tools.
+              </p>
+            </div>
+          </div>
+        </footer>
+
         {/* Persistent Chat Bubble */}
         <ChatBubble 
           messages={messages}
