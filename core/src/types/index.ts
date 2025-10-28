@@ -9,6 +9,8 @@
 export * from './Tool';
 export * from './ToolPermissions';
 export * from './ToolResult';
+export * from './ExposureState';
+export * from './NavigationGraph';
 export * from './ClassifiedTool';
 export * from './DiscoverableToolProvider';
 

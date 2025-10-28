@@ -24,6 +24,10 @@ export { DOMExecutor } from './execution/DOMExecutor';
 // Types
 export * from './types';
 
+// REQ-004 and REQ-005: Exposure and Navigation APIs
+export { ExposureCollector } from './exposure/ExposureCollector';
+export { NavigationGraph } from './navigation/NavigationGraph';
+
 // Browser-specific exports
 export { ToolRegistry as BrowserToolRegistry } from './browser';
 
