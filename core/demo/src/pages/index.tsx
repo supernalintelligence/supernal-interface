@@ -17,6 +17,7 @@ import { QuickToolTest } from '../lib/QuickToolTest';
 import { CodeBlock, InlineCode } from '../components/CodeBlock';
 import { initializeAnalytics, trackPageView, trackToolExecution, trackDemoInteraction, trackTestExecution } from '../lib/analytics';
 import { getDashboardUrl, checkDashboardAvailability, getDashboardAlternatives, getDashboardConfig } from '../lib/dashboardIntegration';
+import { SettingsModal } from '../components/SettingsModal';
 
 interface Message {
   id: string;
@@ -40,6 +41,7 @@ export default function LandingPage() {
   } | null>(null);
   const [dashboardAvailable, setDashboardAvailable] = useState<boolean | null>(null);
   const [dashboardUrl, setDashboardUrl] = useState<string>('');
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false); // REQ-004: Modal state
 
   // Initialize the UI controls and messages on mount
   useEffect(() => {
@@ -264,6 +266,7 @@ export default function LandingPage() {
         <Header 
           currentPage={currentPage} 
           onNavigate={(page) => setCurrentPage(page)} 
+          onSettingsClick={() => setSettingsModalOpen(true)} // REQ-004: Open modal
         />
 
 
@@ -1431,6 +1434,12 @@ results.forEach(test => {
           messages={messages}
           onSendMessage={handleAICommand}
           onClearChat={handleClearChat}
+        />
+        
+        {/* Settings Modal - REQ-004: Modal-Gated Tools */}
+        <SettingsModal 
+          isOpen={settingsModalOpen}
+          onClose={() => setSettingsModalOpen(false)}
         />
       </div>
     </>
