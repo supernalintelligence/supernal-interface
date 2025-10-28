@@ -18,6 +18,8 @@ import { CodeBlock, InlineCode } from '../components/CodeBlock';
 import { initializeAnalytics, trackPageView, trackToolExecution, trackDemoInteraction, trackTestExecution } from '../lib/analytics';
 import { getDashboardUrl, checkDashboardAvailability, getDashboardAlternatives, getDashboardConfig } from '../lib/dashboardIntegration';
 import { SettingsModal } from '../components/SettingsModal';
+import { DashboardTabs } from '../components/DashboardTabs';
+import { FakeAuthProvider, FakeAuthButton } from '../lib/FakeAuth';
 
 interface Message {
   id: string;
@@ -192,10 +194,10 @@ export default function LandingPage() {
   };
 
   return (
-    <>
+    <FakeAuthProvider>
       <Head>
-        <title>Supernal Interface - Make Any App AI-Controllable | Universal AI Tool System</title>
-        <meta name="description" content="Transform any application into an AI-controllable system with simple @Tool decorators. Built-in testing, safety controls, and natural language processing. Try the live demo now." />
+        <title>@supernal-interface - Make Any App AI-Controllable</title>
+        <meta name="description" content="Transform any application into an AI-controllable system with simple @Tool decorators. Built-in testing, safety controls, and natural language processing for autonomous AI agents." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
         {/* SEO Meta Tags */}
@@ -267,6 +269,7 @@ export default function LandingPage() {
           currentPage={currentPage} 
           onNavigate={(page) => setCurrentPage(page)} 
           onSettingsClick={() => setSettingsModalOpen(true)} // REQ-004: Open modal
+          authButton={<FakeAuthButton />} // Add auth button to header
         />
 
 
@@ -1442,6 +1445,6 @@ results.forEach(test => {
           onClose={() => setSettingsModalOpen(false)}
         />
       </div>
-    </>
+    </FakeAuthProvider>
   );
 }

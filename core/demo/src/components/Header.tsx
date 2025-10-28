@@ -10,9 +10,10 @@ interface HeaderProps {
   currentPage?: string;
   onNavigate?: (page: string) => void;
   onSettingsClick?: () => void; // REQ-004: Settings modal trigger
+  authButton?: React.ReactNode; // Optional auth button
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentPage = 'home', onNavigate, onSettingsClick }) => {
+export const Header: React.FC<HeaderProps> = ({ currentPage = 'home', onNavigate, onSettingsClick, authButton }) => {
   const [copiedInstall, setCopiedInstall] = React.useState(false);
   const [copiedAI, setCopiedAI] = React.useState(false);
 
@@ -31,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPage = 'home', onNavigate
   };
 
   const openGitHub = () => {
-    window.open('https://github.com/your-org/supernal-interface', '_blank');
+    window.open('https://github.com/supernalintelligence/supernal-interface', '_blank');
   };
 
   const copyForAIAgent = () => {
@@ -161,7 +162,7 @@ The system includes comprehensive testing that validates:
 
 ## Local Development
 \`\`\`bash
-git clone https://github.com/your-org/supernal-interface
+git clone https://github.com/supernalintelligence/supernal-interface
 cd supernal-interface/core/demo
 npm install
 npm run dev
@@ -205,7 +206,7 @@ https://supernal-interface-demo.vercel.app
 https://www.npmjs.com/package/@supernal-interface/core
 
 ## Repository
-https://github.com/your-org/supernal-interface`;
+https://github.com/supernalintelligence/supernal-interface`;
     
     navigator.clipboard.writeText(completeGuide);
     trackDocumentationUsage('ai-agent-guide', 'copy');
@@ -272,6 +273,9 @@ https://github.com/your-org/supernal-interface`;
 
           {/* Actions */}
           <div className="flex items-center space-x-3">
+            {/* Auth Button (if provided) */}
+            {authButton}
+            
             {/* Settings Button - REQ-004 */}
             <button
               data-tool-id="open-settings-modal"
