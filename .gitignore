@@ -213,6 +213,7 @@ Thumbs.db
 
 # Supernal Coding local state (auto-managed)
 .supernalcoding/
+.supernal-code/
 
 # Migration backups
 migrations.bak/
