@@ -219,3 +219,4 @@ Thumbs.db
 migrations.bak/
 migrations_old_backup/
 migrations_backup_*/
+core/.npmrc
