@@ -211,7 +211,7 @@ const uiTools = ToolRegistry.getToolsByProvider('UIControls');
 ### Local Development
 
 ```bash
-git clone https://github.com/your-org/supernal-interface
+git clone https://github.com/supernalintelligence/supernal-interface
 cd supernal-interface/core/demo
 npm install
 npm run dev
@@ -229,7 +229,7 @@ Contributions welcome! Please read our contributing guidelines and submit pull r
 ## 🔗 Links
 
 - [Live Demo](https://supernal-interface-demo.vercel.app)
-- [GitHub Repository](https://github.com/your-org/supernal-interface)
+- [GitHub Repository](https://github.com/supernalintelligence/supernal-interface)
 - [Documentation](https://supernal-interface-demo.vercel.app/docs)
 - [Examples](https://supernal-interface-demo.vercel.app/examples)
 - [API Reference](https://supernal-interface-demo.vercel.app/api)
